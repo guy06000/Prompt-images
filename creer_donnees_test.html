@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Créer des données de test avec doublons</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 2rem;
+            max-width: 600px;
+            margin: 0 auto;
+            background: #f0f0f0;
+        }
+        .container {
+            background: white;
+            padding: 2rem;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        button {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 1rem 2rem;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 0.5rem;
+        }
+        button:hover {
+            background: #5a67d8;
+        }
+        .success {
+            background: #10b981;
+            color: white;
+            padding: 1rem;
+            border-radius: 5px;
+            margin: 1rem 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🧪 Créer des données de test</h1>
+        <p>Ce script va créer des prompts avec des doublons pour tester la détection.</p>
+        
+        <button onclick="createTestData()">Créer 6 prompts de test (3 groupes de doublons)</button>
+        
+        <div id="result"></div>
+        
+        <hr style="margin: 2rem 0;">
+        
+        <button onclick="window.location.href='index.html'">Retour à l'application</button>
+    </div>
+    
+    <script>
+        function createTestData() {
+            // Récupérer les prompts existants
+            let prompts = JSON.parse(localStorage.getItem('prompts') || '[]');
+            
+            // Créer des prompts de test avec doublons
+            const testPrompts = [
+                // Groupe 1 : 2 doublons
+                {
+                    id: 'test_' + Date.now() + '_1',
+                    title: 'Portrait cyberpunk - Version 1',
+                    content: 'Cyberpunk portrait of a woman with neon lights',
+                    jsonParams: '{"style": "cyberpunk", "lighting": "neon"}',
+                    category: 'portrait',
+                    images: [
+                        {
+                            url: 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgZmlsbD0iI2VmNDQ0NCIvPjx0ZXh0IHg9IjUwJSIgeT0iNTAlIiBmaWxsPSJ3aGl0ZSIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZHk9Ii4zZW0iPkltZyAxPC90ZXh0Pjwvc3ZnPg==',
+                            link: 'https://replicate.com/image1',
+                            name: 'cyber1.png'
+                        }
+                    ],
+                    createdAt: new Date().toISOString()
+                },
+                {
+                    id: 'test_' + Date.now() + '_2',
+                    title: 'Portrait cyberpunk - Version 2',
+                    content: 'Cyberpunk portrait of a woman with neon lights',
+                    jsonParams: '{"style": "cyberpunk", "lighting": "neon"}',
+                    category: 'portrait',
+                    images: [
+                        {
+                            url: 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgZmlsbD0iI2Y1OWUwYiIvPjx0ZXh0IHg9IjUwJSIgeT0iNTAlIiBmaWxsPSJ3aGl0ZSIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZHk9Ii4zZW0iPkltZyAyPC90ZXh0Pjwvc3ZnPg==',
+                            link: 'https://midjourney.com/image2',
+                            name: 'cyber2.png'
+                        }
+                    ],
+                    createdAt: new Date().toISOString()
+                },
+                
+                // Groupe 2 : 3 doublons
+                {
+                    id: 'test_' + Date.now() + '_3',
+                    title: 'Paysage fantastique - Test 1',
+                    content: 'Fantasy landscape with mountains and dragons',
+                    jsonParams: '{"type": "landscape", "theme": "fantasy"}',
+                    category: 'landscape',
+                    images: [
+                        {
+                            url: 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgZmlsbD0iIzEwYjk4MSIvPjx0ZXh0IHg9IjUwJSIgeT0iNTAlIiBmaWxsPSJ3aGl0ZSIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZHk9Ii4zZW0iPkltZyAzPC90ZXh0Pjwvc3ZnPg==',
+                            link: '',
+                            name: 'fantasy1.png'
+                        }
+                    ],
+                    createdAt: new Date(Date.now() - 86400000).toISOString() // 1 jour avant
+                },
+                {
+                    id: 'test_' + Date.now() + '_4',
+                    title: 'Paysage fantastique - Test 2',
+                    content: 'Fantasy landscape with mountains and dragons',
+                    jsonParams: '{"type": "landscape", "theme": "fantasy"}',
+                    category: 'landscape',
+                    images: [
+                        {
+                            url: 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgZmlsbD0iIzNiODJmNiIvPjx0ZXh0IHg9IjUwJSIgeT0iNTAlIiBmaWxsPSJ3aGl0ZSIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZHk9Ii4zZW0iPkltZyA0PC90ZXh0Pjwvc3ZnPg==',
+                            link: 'https://dall-e.com/image4',
+                            name: 'fantasy2.png'
+                        }
+                    ],
+                    createdAt: new Date().toISOString()
+                },
+                {
+                    id: 'test_' + Date.now() + '_5',
+                    title: 'Paysage fantastique - Test 3',
+                    content: 'Fantasy landscape with mountains and dragons',
+                    jsonParams: '{"type": "landscape", "theme": "fantasy"}',
+                    category: 'landscape',
+                    images: [
+                        {
+                            url: 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgZmlsbD0iI2E4NTVmNyIvPjx0ZXh0IHg9IjUwJSIgeT0iNTAlIiBmaWxsPSJ3aGl0ZSIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZHk9Ii4zZW0iPkltZyA1PC90ZXh0Pjwvc3ZnPg==',
+                            link: '',
+                            name: 'fantasy3.png'
+                        }
+                    ],
+                    createdAt: new Date().toISOString()
+                },
+                
+                // Un prompt unique (pas de doublon)
+                {
+                    id: 'test_' + Date.now() + '_6',
+                    title: 'Art abstrait unique',
+                    content: 'Abstract art with vibrant colors and geometric shapes',
+                    jsonParams: '{"style": "abstract", "colors": "vibrant"}',
+                    category: 'artistic',
+                    images: [],
+                    createdAt: new Date().toISOString()
+                }
+            ];
+            
+            // Ajouter les prompts de test
+            prompts = prompts.concat(testPrompts);
+            
+            // Sauvegarder
+            localStorage.setItem('prompts', JSON.stringify(prompts));
+            
+            // Afficher le résultat
+            const result = document.getElementById('result');
+            result.className = 'success';
+            result.innerHTML = `
+                ✅ Données de test créées avec succès !<br><br>
+                <strong>Ce qui a été ajouté :</strong><br>
+                - Groupe 1 : 2 cartes "Portrait cyberpunk" identiques<br>
+                - Groupe 2 : 3 cartes "Paysage fantastique" identiques<br>
+                - 1 carte unique "Art abstrait"<br><br>
+                Total : 6 nouvelles cartes<br><br>
+                <strong>Pour tester :</strong><br>
+                1. Retournez à l'application<br>
+                2. Cliquez sur le bouton 🔍+ (détection)<br>
+                3. Les doublons seront surlignés en couleur !
+            `;
+        }
+    </script>
+</body>
+</html>

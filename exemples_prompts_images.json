@@ -1,0 +1,119 @@
+{
+  "prompts": [
+    {
+      "id": "prompt_flux_1",
+      "title": "Portrait Cinématique Flux",
+      "category": "flux",
+      "replicateLink": "https://replicate.com/black-forest-labs/flux-1.1-pro",
+      "description": "Portrait photoréaliste avec éclairage cinématique",
+      "content": "Cinematic portrait of a young woman with flowing auburn hair, dramatic side lighting, golden hour, shallow depth of field, shot on 85mm lens, professional photography, hyperrealistic, 8k resolution, moody atmosphere, film grain",
+      "tags": "portrait, cinématique, flux, réaliste",
+      "images": [],
+      "createdAt": "2024-01-01T00:00:00Z",
+      "updatedAt": "2024-01-01T00:00:00Z"
+    },
+    {
+      "id": "prompt_krea_1",
+      "title": "Paysage Fantasy Krea",
+      "category": "krea",
+      "replicateLink": "https://replicate.com/krea-ai/realtime",
+      "description": "Paysage fantastique avec château flottant",
+      "content": "Majestic floating castle in the clouds, ethereal fantasy landscape, waterfalls cascading from sky islands, rainbow bridges, magical aurora in the background, Studio Ghibli style, highly detailed, vibrant colors, volumetric lighting, epic scale, artstation trending",
+      "tags": "paysage, fantasy, krea, artistique",
+      "images": [],
+      "createdAt": "2024-01-01T00:00:00Z",
+      "updatedAt": "2024-01-01T00:00:00Z"
+    },
+    {
+      "id": "prompt_portrait_1",
+      "title": "Portrait Cyberpunk Néon",
+      "category": "portrait",
+      "replicateLink": "",
+      "description": "Portrait futuriste avec éclairage néon",
+      "content": "Cyberpunk portrait, neon pink and blue lighting, rain-soaked street reflection, futuristic fashion, holographic accessories, bokeh city lights background, blade runner aesthetic, high contrast, moody atmosphere, detailed facial features, glowing eyes",
+      "tags": "cyberpunk, portrait, néon, futuriste",
+      "images": [],
+      "createdAt": "2024-01-01T00:00:00Z",
+      "updatedAt": "2024-01-01T00:00:00Z"
+    },
+    {
+      "id": "prompt_concept_1",
+      "title": "Créature Fantastique",
+      "category": "concept",
+      "replicateLink": "",
+      "description": "Design de créature pour jeu vidéo",
+      "content": "Mythical dragon-phoenix hybrid creature, iridescent feathers transitioning to scales, four wings with cosmic patterns, ethereal glow, perched on ancient crystal formation, concept art style, detailed anatomy, dynamic pose, magical particles, trending on artstation",
+      "tags": "créature, concept art, fantasy, jeu vidéo",
+      "images": [],
+      "createdAt": "2024-01-01T00:00:00Z",
+      "updatedAt": "2024-01-01T00:00:00Z"
+    },
+    {
+      "id": "prompt_realistic_1",
+      "title": "Architecture Moderne",
+      "category": "realistic",
+      "replicateLink": "",
+      "description": "Rendu architectural photoréaliste",
+      "content": "Modern minimalist house with floor-to-ceiling windows, concrete and wood materials, infinity pool overlooking ocean cliff, sunset lighting, architectural photography, ultra realistic, ray tracing, 8k resolution, professional architectural visualization",
+      "tags": "architecture, réaliste, moderne, rendu",
+      "images": [],
+      "createdAt": "2024-01-01T00:00:00Z",
+      "updatedAt": "2024-01-01T00:00:00Z"
+    },
+    {
+      "id": "prompt_artistic_1",
+      "title": "Style Peinture à l'Huile",
+      "category": "artistic",
+      "replicateLink": "",
+      "description": "Portrait dans le style des maîtres classiques",
+      "content": "Oil painting portrait in the style of Rembrandt, dramatic chiaroscuro lighting, rich textures, visible brushstrokes, warm color palette, classical composition, museum quality, fine art, masterpiece, baroque style, aged canvas texture",
+      "tags": "peinture, artistique, classique, portrait",
+      "images": [],
+      "createdAt": "2024-01-01T00:00:00Z",
+      "updatedAt": "2024-01-01T00:00:00Z"
+    }
+  ],
+  "categories": [
+    {
+      "id": "flux",
+      "name": "Flux",
+      "icon": "fa-bolt"
+    },
+    {
+      "id": "krea",
+      "name": "Krea",
+      "icon": "fa-palette"
+    },
+    {
+      "id": "portrait",
+      "name": "Portraits",
+      "icon": "fa-user"
+    },
+    {
+      "id": "landscape",
+      "name": "Paysages",
+      "icon": "fa-mountain"
+    },
+    {
+      "id": "concept",
+      "name": "Concept Art",
+      "icon": "fa-drafting-compass"
+    },
+    {
+      "id": "realistic",
+      "name": "Réaliste",
+      "icon": "fa-camera"
+    },
+    {
+      "id": "artistic",
+      "name": "Artistique",
+      "icon": "fa-paint-brush"
+    },
+    {
+      "id": "other",
+      "name": "Autre",
+      "icon": "fa-folder"
+    }
+  ],
+  "exportDate": "2024-01-01T00:00:00Z"
+}

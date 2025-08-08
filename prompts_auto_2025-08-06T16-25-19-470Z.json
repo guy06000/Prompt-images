@@ -1,0 +1,19 @@
+{
+  "prompts": [],
+  "categories": [
+    {
+      "id": "krea",
+      "name": "Krea",
+      "icon": "fa-palette"
+    },
+    {
+      "id": "other",
+      "name": "Autre",
+      "icon": "fa-folder"
+    }
+  ],
+  "backupDate": "2025-08-06T16:25:19.470Z",
+  "version": "1.2.0",
+  "totalPrompts": 0,
+  "totalCategories": 2
+}

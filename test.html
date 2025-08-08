@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Prompt Manager</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        .test-section {
+            margin: 20px 0;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+        }
+        .success {
+            color: green;
+        }
+        .error {
+            color: red;
+        }
+        button {
+            margin: 5px;
+            padding: 10px 20px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <h1>Test de l'application Prompt Manager</h1>
+    
+    <div class="test-section">
+        <h2>Tests de fonctionnalité</h2>
+        <button onclick="testLocalStorage()">Tester localStorage</button>
+        <button onclick="testApp()">Tester l'application</button>
+        <button onclick="window.open('index.html', '_blank')">Ouvrir l'application</button>
+        <div id="results"></div>
+    </div>
+
+    <script>
+        function testLocalStorage() {
+            const results = document.getElementById('results');
+            try {
+                localStorage.setItem('test', 'valeur');
+                const value = localStorage.getItem('test');
+                localStorage.removeItem('test');
+                results.innerHTML += '<p class="success">✅ localStorage fonctionne correctement</p>';
+            } catch (e) {
+                results.innerHTML += '<p class="error">❌ Erreur localStorage: ' + e.message + '</p>';
+            }
+        }
+
+        function testApp() {
+            const results = document.getElementById('results');
+            results.innerHTML = '<h3>Diagnostic:</h3>';
+            
+            // Test localStorage
+            try {
+                localStorage.setItem('test', 'ok');
+                localStorage.removeItem('test');
+                results.innerHTML += '<p class="success">✅ localStorage accessible</p>';
+            } catch (e) {
+                results.innerHTML += '<p class="error">❌ localStorage non accessible</p>';
+            }
+            
+            // Test JavaScript
+            results.innerHTML += '<p class="success">✅ JavaScript activé</p>';
+            
+            // Test DOM
+            if (document.getElementById) {
+                results.innerHTML += '<p class="success">✅ DOM manipulation OK</p>';
+            }
+            
+            // Test Event Listeners
+            const testBtn = document.createElement('button');
+            let eventWorks = false;
+            testBtn.addEventListener('click', () => { eventWorks = true; });
+            testBtn.click();
+            if (eventWorks) {
+                results.innerHTML += '<p class="success">✅ Event listeners fonctionnent</p>';
+            } else {
+                results.innerHTML += '<p class="error">❌ Problème avec les event listeners</p>';
+            }
+            
+            results.innerHTML += '<br><strong>L\'application devrait maintenant fonctionner correctement !</strong>';
+        }
+    </script>
+</body>
+</html>

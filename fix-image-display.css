@@ -1,0 +1,253 @@
+/* ===== CORRECTION AFFICHAGE DES IMAGES ===== */
+
+/* Limiter la taille des images dans les cartes */
+.prompt-card-images {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+    gap: 0.5rem;
+    margin-top: 0.75rem;
+    max-width: 100%;
+    overflow: hidden;
+}
+
+.prompt-card-images img {
+    width: 100%;
+    height: 80px;
+    object-fit: cover;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    transition: transform 0.2s ease;
+    border: 2px solid var(--border-color);
+}
+
+.prompt-card-images img:hover {
+    transform: scale(1.05);
+    border-color: var(--primary-color);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+/* Container pour chaque image avec son badge de lien */
+.prompt-card-images .image-item {
+    position: relative;
+    width: 100%;
+    height: 80px;
+    overflow: hidden;
+    border-radius: var(--radius-sm);
+}
+
+.prompt-card-images .image-item img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border: none;
+}
+
+/* Badge de lien sur les images */
+.prompt-card-images .image-link-badge {
+    position: absolute;
+    top: 4px;
+    right: 4px;
+    background: rgba(99, 102, 241, 0.9);
+    color: white;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    transition: all 0.2s ease;
+}
+
+.prompt-card-images .image-link-badge:hover {
+    background: var(--primary-color);
+    transform: scale(1.1);
+}
+
+.prompt-card-images .image-link-badge a {
+    color: white;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+}
+
+.prompt-card-images .image-link-badge i {
+    font-size: 0.7rem;
+}
+
+/* Aperçu des images dans le formulaire */
+.image-preview-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+    gap: 1rem;
+    margin-top: 1rem;
+    max-height: 400px;
+    overflow-y: auto;
+    padding: 0.5rem;
+    background: var(--bg-tertiary);
+    border-radius: var(--radius-md);
+}
+
+.image-preview-item {
+    position: relative;
+    border-radius: var(--radius-md);
+    overflow: hidden;
+    background: var(--bg-card);
+    border: 2px solid var(--border-color);
+}
+
+.image-preview-item img {
+    width: 100%;
+    height: 120px;
+    object-fit: cover;
+    display: block;
+}
+
+.image-preview-item .btn-remove-image {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    background: rgba(239, 68, 68, 0.9);
+    color: white;
+    border: none;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.image-preview-item .btn-remove-image:hover {
+    background: #dc2626;
+    transform: scale(1.1);
+}
+
+/* Container de lien sous l'image dans le formulaire */
+.image-preview-item .image-link-container {
+    padding: 0.5rem;
+    background: var(--bg-secondary);
+    border-top: 1px solid var(--border-color);
+}
+
+.image-preview-item .btn-link-toggle {
+    width: 100%;
+    padding: 0.25rem;
+    font-size: 0.75rem;
+    background: var(--bg-tertiary);
+    border: 1px solid var(--border-color);
+    color: var(--text-secondary);
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.25rem;
+    transition: all 0.2s ease;
+}
+
+.image-preview-item .btn-link-toggle:hover {
+    background: var(--primary-color);
+    color: white;
+    border-color: var(--primary-color);
+}
+
+.image-preview-item .image-link-field {
+    margin-top: 0.5rem;
+    display: flex;
+    gap: 0.25rem;
+}
+
+.image-preview-item .image-link-input {
+    flex: 1;
+    padding: 0.25rem;
+    font-size: 0.75rem;
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-sm);
+    background: var(--bg-primary);
+    color: var(--text-primary);
+}
+
+.image-preview-item .btn-save-link {
+    padding: 0.25rem 0.5rem;
+    background: var(--success-color, #10b981);
+    color: white;
+    border: none;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    font-size: 0.75rem;
+}
+
+.image-preview-item .btn-save-link:hover {
+    background: var(--success-hover, #059669);
+}
+
+.image-preview-item .image-source-indicator {
+    display: block;
+    margin-top: 0.5rem;
+    text-align: center;
+    color: var(--primary-color);
+    font-size: 0.75rem;
+    text-decoration: none;
+}
+
+.image-preview-item .image-source-indicator:hover {
+    text-decoration: underline;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .prompt-card-images {
+        grid-template-columns: repeat(auto-fill, minmax(60px, 1fr));
+    }
+    
+    .prompt-card-images img,
+    .prompt-card-images .image-item {
+        height: 60px;
+    }
+    
+    .image-preview-grid {
+        grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+    }
+}/* ===== CORRECTION GALERIE D'IMAGES ===== */
+
+/* Style pour la galerie modale */
+.gallery-source-link {
+    margin-left: 1rem;
+    color: white;
+    text-decoration: none;
+    padding: 0.25rem 0.5rem;
+    background: rgba(99, 102, 241, 0.8);
+    border-radius: var(--radius-sm);
+    font-size: 0.75rem;
+    transition: all 0.2s ease;
+}
+
+.gallery-source-link:hover {
+    background: var(--primary-color);
+    transform: scale(1.05);
+}
+
+.gallery-info {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+/* Assurer que les images de la galerie sont bien centrées */
+.gallery-image {
+    max-width: 90vw;
+    max-height: 85vh;
+    width: auto;
+    height: auto;
+    display: block;
+    margin: 0 auto;
+    object-fit: contain;
+    border-radius: var(--radius-lg);
+}

@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test - Système de Liens d'Images</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            padding: 2rem;
+            max-width: 1000px;
+            margin: 0 auto;
+            background: #f5f5f5;
+        }
+        h1 {
+            color: #333;
+            border-bottom: 3px solid #667eea;
+            padding-bottom: 1rem;
+        }
+        .test-section {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin: 1rem 0;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        button {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 6px;
+            cursor: pointer;
+            margin: 0.5rem;
+        }
+        button:hover {
+            background: #5a67d8;
+        }
+        .success {
+            color: #10b981;
+            background: #d4edda;
+            padding: 1rem;
+            border-radius: 4px;
+            margin: 1rem 0;
+        }
+        .image-demo {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 1rem;
+            margin: 1rem 0;
+        }
+        .image-card {
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            padding: 1rem;
+            background: white;
+        }
+        .image-card img {
+            width: 100%;
+            height: 150px;
+            object-fit: cover;
+            border-radius: 4px;
+        }
+        .link-field {
+            margin-top: 0.5rem;
+        }
+        .link-field input {
+            width: 100%;
+            padding: 0.5rem;
+            border: 1px solid #d1d5db;
+            border-radius: 4px;
+        }
+        .has-link {
+            border-color: #667eea;
+            background: #f0f4ff;
+        }
+    </style>
+</head>
+<body>
+    <h1>🧪 Test du Système de Liens d'Images</h1>
+    
+    <div class="test-section">
+        <h2>1️⃣ Test de création d'images avec liens</h2>
+        <button onclick="createTestData()">Créer des données de test</button>
+        <div id="test1-result"></div>
+        <div class="image-demo" id="imageDemo"></div>
+    </div>
+    
+    <div class="test-section">
+        <h2>2️⃣ Test de fusion avec conservation des liens</h2>
+        <button onclick="testMerge()">Tester la fusion</button>
+        <div id="test2-result"></div>
+    </div>
+    
+    <div class="test-section">
+        <h2>3️⃣ Test de migration des anciennes données</h2>
+        <button onclick="testMigration()">Tester la migration</button>
+        <div id="test3-result"></div>
+    </div>
+    
+    <script>
+        // Données de test
+        let testPrompts = [];
+        
+        function createTestData() {
+            // Créer des prompts avec images et liens
+            testPrompts = [
+                {
+                    id: '1',
+                    title: 'Prompt A - Original',
+                    content: 'Beautiful landscape',
+                    images: [
+                        {
+                            url: 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjE1MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMjAwIiBoZWlnaHQ9IjE1MCIgZmlsbD0iIzY2N2VlYSIvPjx0ZXh0IHg9IjUwJSIgeT0iNTAlIiBmaWxsPSJ3aGl0ZSIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZHk9Ii4zZW0iPkltYWdlIDE8L3RleHQ+PC9zdmc+',
+                            link: 'https://replicate.com/image1',
+                            name: 'image1.png'
+                        },
+                        {
+                            url: 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjE1MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMjAwIiBoZWlnaHQ9IjE1MCIgZmlsbD0iIzEwYjk4MSIvPjx0ZXh0IHg9IjUwJSIgeT0iNTAlIiBmaWxsPSJ3aGl0ZSIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZHk9Ii4zZW0iPkltYWdlIDI8L3RleHQ+PC9zdmc+',
+                            link: '',
+                            name: 'image2.png'
+                        }
+                    ]
+                },
+                {
+                    id: '2',
+                    title: 'Prompt A - Copie',
+                    content: 'Beautiful landscape',
+                    images: [
+                        {
+                            url: 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjE1MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMjAwIiBoZWlnaHQ9IjE1MCIgZmlsbD0iI2VmNDQ0NCIvPjx0ZXh0IHg9IjUwJSIgeT0iNTAlIiBmaWxsPSJ3aGl0ZSIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZHk9Ii4zZW0iPkltYWdlIDM8L3RleHQ+PC9zdmc+',
+                            link: 'https://midjourney.com/image3',
+                            name: 'image3.png'
+                        },
+                        {
+                            url: 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjE1MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMjAwIiBoZWlnaHQ9IjE1MCIgZmlsbD0iIzEwYjk4MSIvPjx0ZXh0IHg9IjUwJSIgeT0iNTAlIiBmaWxsPSJ3aGl0ZSIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZHk9Ii4zZW0iPkltYWdlIDI8L3RleHQ+PC9zdmc+',
+                            link: 'https://dall-e.com/image2',
+                            name: 'image2.png'
+                        }
+                    ]
+                }
+            ];
+            
+            // Afficher les données
+            const result = document.getElementById('test1-result');
+            result.className = 'success';
+            result.innerHTML = `✅ ${testPrompts.length} prompts créés avec images et liens`;
+            
+            // Afficher les images
+            displayImages();
+        }
+        
+        function displayImages() {
+            const demo = document.getElementById('imageDemo');
+            demo.innerHTML = '';
+            
+            testPrompts.forEach(prompt => {
+                prompt.images.forEach(img => {
+                    const card = document.createElement('div');
+                    card.className = `image-card ${img.link ? 'has-link' : ''}`;
+                    card.innerHTML = `
+                        <h4>${prompt.title}</h4>
+                        <img src="${img.url}" alt="${img.name}">
+                        <div class="link-field">
+                            <input type="url" 
+                                   value="${img.link || ''}" 
+                                   placeholder="Pas de lien source"
+                                   readonly>
+                        </div>
+                        ${img.link ? `
+                            <a href="${img.link}" target="_blank" style="color: #667eea;">
+                                🔗 Voir la source
+                            </a>
+                        ` : '<span style="color: #999;">Pas de source</span>'}
+                    `;
+                    demo.appendChild(card);
+                });
+            });
+        }
+        
+        function testMerge() {
+            if (testPrompts.length === 0) {
+                alert('Créez d\'abord les données de test !');
+                return;
+            }
+            
+            // Simuler la fusion
+            const mergedImages = new Map();
+            
+            testPrompts.forEach(prompt => {
+                prompt.images.forEach(img => {
+                    const key = img.url;
+                    if (mergedImages.has(key)) {
+                        // Si l'image existe, garder le lien non vide
+                        const existing = mergedImages.get(key);
+                        if (!existing.link && img.link) {
+                            existing.link = img.link;
+                        }
+                    } else {
+                        mergedImages.set(key, {...img});
+                    }
+                });
+            });
+            
+            const result = document.getElementById('test2-result');
+            result.className = 'success';
+            result.innerHTML = `
+                ✅ Fusion réussie !<br>
+                - Images uniques : ${mergedImages.size}<br>
+                - Images avec liens : ${Array.from(mergedImages.values()).filter(i => i.link).length}<br>
+                <br>
+                <strong>Détails :</strong><br>
+                ${Array.from(mergedImages.values()).map(img => 
+                    `• ${img.name} → ${img.link || 'Pas de lien'}`
+                ).join('<br>')}
+            `;
+        }
+        
+        function testMigration() {
+            // Simuler des anciennes données (format string)
+            const oldData = [
+                'data:image/png;base64,old1',
+                'data:image/png;base64,old2',
+                'https://example.com/image.jpg'
+            ];
+            
+            // Migration
+            const migratedData = oldData.map(img => ({
+                url: img,
+                link: '',
+                name: img.startsWith('data:') ? 'image_migrated' : img.split('/').pop()
+            }));
+            
+            const result = document.getElementById('test3-result');
+            result.className = 'success';
+            result.innerHTML = `
+                ✅ Migration réussie !<br>
+                - ${oldData.length} images migrées au nouveau format<br>
+                <br>
+                <strong>Format migré :</strong><br>
+                <pre>${JSON.stringify(migratedData[0], null, 2)}</pre>
+            `;
+        }
+        
+        // Test au chargement
+        window.onload = function() {
+            console.log('🔗 Test du système de liens d\'images prêt');
+        };
+    </script>
+</body>
+</html>

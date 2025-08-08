@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test de l'application Prompt Manager</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        .test-result {
+            margin: 10px 0;
+            padding: 10px;
+            border-radius: 5px;
+        }
+        .success {
+            background-color: #d4edda;
+            color: #155724;
+        }
+        .error {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+        button {
+            padding: 10px 20px;
+            margin: 5px;
+            cursor: pointer;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <h1>Test de l'application Prompt Manager</h1>
+    
+    <h2>Tests des fonctionnalités :</h2>
+    <div id="results"></div>
+    
+    <h2>Tests manuels :</h2>
+    <button onclick="testClick()">Test de clic</button>
+    <button onclick="openApp()">Ouvrir l'application</button>
+    
+    <script>
+        const resultsDiv = document.getElementById('results');
+        
+        function addResult(text, success) {
+            const div = document.createElement('div');
+            div.className = `test-result ${success ? 'success' : 'error'}`;
+            div.textContent = text;
+            resultsDiv.appendChild(div);
+        }
+        
+        // Test si le JavaScript fonctionne
+        addResult('✓ JavaScript est fonctionnel', true);
+        
+        // Test localStorage
+        try {
+            localStorage.setItem('test', 'value');
+            localStorage.removeItem('test');
+            addResult('✓ localStorage est accessible', true);
+        } catch (e) {
+            addResult('✗ Erreur avec localStorage: ' + e.message, false);
+        }
+        
+        // Test des event listeners
+        document.addEventListener('DOMContentLoaded', () => {
+            addResult('✓ DOMContentLoaded fonctionne', true);
+        });
+        
+        function testClick() {
+            alert('Le clic fonctionne correctement !');
+            addResult('✓ Test de clic réussi', true);
+        }
+        
+        function openApp() {
+            window.open('index.html', '_blank');
+        }
+        
+        // Vérifier si les données de l'app existent
+        const prompts = localStorage.getItem('prompts');
+        const categories = localStorage.getItem('categories');
+        
+        if (prompts) {
+            try {
+                const promptsData = JSON.parse(prompts);
+                addResult(`✓ ${promptsData.length} prompt(s) trouvé(s) dans localStorage`, true);
+            } catch (e) {
+                addResult('✗ Erreur lors de la lecture des prompts', false);
+            }
+        } else {
+            addResult('ℹ Aucun prompt sauvegardé (normal au premier lancement)', true);
+        }
+        
+        if (categories) {
+            try {
+                const categoriesData = JSON.parse(categories);
+                addResult(`✓ ${categoriesData.length} catégorie(s) trouvée(s) dans localStorage`, true);
+            } catch (e) {
+                addResult('✗ Erreur lors de la lecture des catégories', false);
+            }
+        } else {
+            addResult('ℹ Aucune catégorie personnalisée (utilisation des catégories par défaut)', true);
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,77 @@
+{
+  "prompts": [
+    {
+      "id": "prompt_example_1",
+      "title": "Assistant Python Expert",
+      "category": "dev",
+      "description": "Pour obtenir de l'aide sur du code Python",
+      "content": "Tu es un expert Python avec 10 ans d'expérience. Tu dois m'aider à résoudre des problèmes de code, optimiser des algorithmes et suivre les meilleures pratiques. Explique clairement tes solutions avec des exemples de code commentés.",
+      "tags": "python, programmation, debug, optimisation",
+      "createdAt": "2024-01-01T00:00:00Z",
+      "updatedAt": "2024-01-01T00:00:00Z"
+    },
+    {
+      "id": "prompt_example_2",
+      "title": "Rédacteur Article Blog SEO",
+      "category": "writing",
+      "description": "Pour créer des articles optimisés SEO",
+      "content": "Tu es un rédacteur web spécialisé en SEO. Écris un article de blog de 800-1000 mots sur [SUJET]. L'article doit être structuré avec des titres H2 et H3, inclure les mots-clés naturellement, avoir une introduction accrocheuse et une conclusion avec un appel à l'action. Utilise un ton professionnel mais accessible.",
+      "tags": "seo, blog, rédaction, contenu",
+      "createdAt": "2024-01-01T00:00:00Z",
+      "updatedAt": "2024-01-01T00:00:00Z"
+    },
+    {
+      "id": "prompt_example_3",
+      "title": "Analyste de Données",
+      "category": "data",
+      "description": "Pour analyser et visualiser des données",
+      "content": "Tu es un data scientist expérimenté. Analyse les données que je vais te fournir et : 1) Identifie les tendances principales, 2) Détecte les anomalies éventuelles, 3) Propose des visualisations pertinentes, 4) Fournis des insights actionnables. Utilise un langage clair et évite le jargon technique inutile.",
+      "tags": "data, analyse, visualisation, insights",
+      "createdAt": "2024-01-01T00:00:00Z",
+      "updatedAt": "2024-01-01T00:00:00Z"
+    },
+    {
+      "id": "prompt_example_4",
+      "title": "Correcteur et Améliorateur de Texte",
+      "category": "writing",
+      "description": "Pour corriger et améliorer des textes",
+      "content": "Corrige et améliore le texte suivant en gardant le ton et le style original. Corrige les fautes d'orthographe, de grammaire et de ponctuation. Améliore la clarté et la fluidité sans changer le sens. Indique les modifications importantes entre crochets [comme ceci].",
+      "tags": "correction, grammaire, style, rédaction",
+      "createdAt": "2024-01-01T00:00:00Z",
+      "updatedAt": "2024-01-01T00:00:00Z"
+    },
+    {
+      "id": "prompt_example_5",
+      "title": "Générateur de Tests Unitaires",
+      "category": "dev",
+      "description": "Pour créer des tests unitaires complets",
+      "content": "Génère des tests unitaires complets pour le code suivant. Utilise le framework de test approprié au langage. Couvre les cas normaux, les cas limites et les cas d'erreur. Chaque test doit avoir un nom descriptif et un commentaire expliquant ce qui est testé. Vise une couverture de code d'au moins 80%.",
+      "tags": "tests, unittest, qualité, code",
+      "createdAt": "2024-01-01T00:00:00Z",
+      "updatedAt": "2024-01-01T00:00:00Z"
+    }
+  ],
+  "categories": [
+    {
+      "id": "dev",
+      "name": "Développement",
+      "icon": "fa-code"
+    },
+    {
+      "id": "writing",
+      "name": "Rédaction",
+      "icon": "fa-pen"
+    },
+    {
+      "id": "data",
+      "name": "Data & IA",
+      "icon": "fa-chart-bar"
+    },
+    {
+      "id": "other",
+      "name": "Autre",
+      "icon": "fa-folder"
+    }
+  ],
+  "exportDate": "2024-01-01T00:00:00Z"
+}

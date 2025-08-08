@@ -1,0 +1,130 @@
+{
+  "prompts_with_duplicates": [
+    {
+      "id": "test_1",
+      "title": "Portrait Cinématique Original",
+      "category": "portrait",
+      "content": "Cinematic portrait of a young woman with flowing auburn hair, dramatic side lighting, golden hour, shallow depth of field, shot on 85mm lens, professional photography, hyperrealistic, 8k resolution, moody atmosphere, film grain",
+      "jsonParams": "{\"model\": \"flux-1.1-pro\", \"guidance_scale\": 3.5, \"steps\": 25}",
+      "comment": "Version originale du prompt portrait"
+    },
+    {
+      "id": "test_2",
+      "title": "Portrait Cinématique SDXL",
+      "category": "portrait",
+      "content": "Cinematic portrait of a young woman with flowing auburn hair, dramatic side lighting, golden hour, shallow depth of field, shot on 85mm lens, professional photography, hyperrealistic, 8k resolution, moody atmosphere, film grain",
+      "jsonParams": "{\"model\": \"sdxl\", \"cfg_scale\": 7, \"steps\": 30}",
+      "comment": "Même prompt mais optimisé pour SDXL - PAS un doublon car JSON différent"
+    },
+    {
+      "id": "test_3",
+      "title": "Portrait Cinématique Copie",
+      "category": "portrait",
+      "content": "Cinematic portrait of a young woman with flowing auburn hair, dramatic side lighting, golden hour, shallow depth of field, shot on 85mm lens, professional photography, hyperrealistic, 8k resolution, moody atmosphere, film grain",
+      "jsonParams": "{\"model\": \"flux-1.1-pro\", \"guidance_scale\": 3.5, \"steps\": 25}",
+      "comment": "DOUBLON EXACT - devrait être détecté comme doublon 100%"
+    },
+    {
+      "id": "test_4",
+      "title": "Portrait Cinématique Variation",
+      "category": "portrait",
+      "content": "Cinematic portrait of a young man with flowing dark hair, dramatic side lighting, blue hour, shallow depth of field, shot on 85mm lens, professional photography, hyperrealistic, 8k resolution, moody atmosphere, film grain",
+      "comment": "Variation similaire (changé woman->man, auburn->dark, golden->blue) - environ 85% similaire"
+    },
+    {
+      "id": "test_5",
+      "title": "Paysage Fantasy Original",
+      "category": "landscape",
+      "content": "Majestic floating castle in the clouds, ethereal fantasy landscape, waterfalls cascading from sky islands, rainbow bridges, magical aurora in the background, Studio Ghibli style, highly detailed, vibrant colors, volumetric lighting, epic scale",
+      "jsonParams": "{\"model\": \"midjourney\", \"stylize\": 100, \"quality\": 1}",
+      "comment": "Prompt unique - pas de doublon"
+    },
+    {
+      "id": "test_6",
+      "title": "Paysage Fantasy Modifié",
+      "category": "landscape",
+      "content": "Majestic floating castle in the clouds, ethereal fantasy landscape, waterfalls cascading from sky islands, rainbow bridges, magical aurora in the background, Studio Ghibli style, highly detailed, vibrant colors, volumetric lighting",
+      "jsonParams": "{\"model\": \"midjourney\", \"stylize\": 100, \"quality\": 1}",
+      "comment": "Presque identique mais sans 'epic scale' - environ 95% similaire"
+    },
+    {
+      "id": "test_7",
+      "title": "Cyberpunk Unique",
+      "category": "concept",
+      "content": "Futuristic cyberpunk city at night, neon lights, rain, blade runner atmosphere",
+      "comment": "Prompt court unique"
+    },
+    {
+      "id": "test_8",
+      "title": "Test Doublon Simple",
+      "category": "other",
+      "content": "Test prompt simple",
+      "jsonParams": "{\"test\": true}"
+    },
+    {
+      "id": "test_9",
+      "title": "Test Doublon Simple Copie",
+      "category": "other",
+      "content": "Test prompt simple",
+      "jsonParams": "{\"test\": true}",
+      "comment": "DOUBLON EXACT de test_8"
+    },
+    {
+      "id": "test_10",
+      "title": "Test Similaire",
+      "category": "other",
+      "content": "Test prompt simple avec variation",
+      "comment": "Similaire à test_8 mais pas identique"
+    }
+  ],
+  "expected_results": {
+    "exact_duplicates": [
+      {
+        "original": "test_1",
+        "duplicate": "test_3",
+        "reason": "Contenu et JSON 100% identiques"
+      },
+      {
+        "original": "test_8",
+        "duplicate": "test_9",
+        "reason": "Contenu et JSON 100% identiques"
+      }
+    ],
+    "partial_duplicates": [
+      {
+        "original": "test_1",
+        "similar": "test_2",
+        "similarity": 100,
+        "reason": "Même contenu mais JSON différent (modèle différent)"
+      }
+    ],
+    "similar_prompts": [
+      {
+        "original": "test_1",
+        "similar": "test_4",
+        "similarity": 85,
+        "reason": "Structure identique avec quelques mots changés"
+      },
+      {
+        "original": "test_5",
+        "similar": "test_6",
+        "similarity": 95,
+        "reason": "Presque identique, juste 2 mots en moins"
+      },
+      {
+        "original": "test_8",
+        "similar": "test_10",
+        "similarity": 80,
+        "reason": "Base similaire avec variation"
+      }
+    ],
+    "unique_prompts": ["test_7"],
+    "statistics": {
+      "total_prompts": 10,
+      "exact_duplicates": 2,
+      "partial_duplicates": 1,
+      "similar_prompts": 3,
+      "unique_prompts": 4
+    }
+  }
+}

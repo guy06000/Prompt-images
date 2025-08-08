@@ -1,0 +1,164 @@
+{
+  "templates": {
+    "flux": {
+      "name": "Flux 1.1 Pro",
+      "description": "Configuration optimale pour Flux 1.1 Pro",
+      "params": {
+        "model": "flux-1.1-pro",
+        "guidance_scale": 3.5,
+        "num_inference_steps": 25,
+        "width": 1024,
+        "height": 1024,
+        "prompt_strength": 0.8,
+        "seed": -1,
+        "safety_filter": true,
+        "output_format": "png"
+      }
+    },
+    "sdxl": {
+      "name": "Stable Diffusion XL",
+      "description": "Configuration standard pour SDXL",
+      "params": {
+        "model": "stable-diffusion-xl",
+        "cfg_scale": 7,
+        "steps": 30,
+        "sampler": "DPM++ 2M Karras",
+        "width": 1024,
+        "height": 1024,
+        "negative_prompt": "",
+        "seed": -1,
+        "clip_skip": 1,
+        "batch_size": 1
+      }
+    },
+    "sdxl_turbo": {
+      "name": "SDXL Turbo",
+      "description": "Configuration rapide pour SDXL Turbo",
+      "params": {
+        "model": "sdxl-turbo",
+        "cfg_scale": 1,
+        "steps": 1,
+        "sampler": "Euler a",
+        "width": 512,
+        "height": 512,
+        "seed": -1
+      }
+    },
+    "midjourney": {
+      "name": "Midjourney Style",
+      "description": "Paramètres style Midjourney",
+      "params": {
+        "model": "midjourney-v6",
+        "stylize": 100,
+        "quality": 1,
+        "chaos": 0,
+        "aspect_ratio": "1:1",
+        "weird": 0,
+        "tile": false,
+        "version": 6
+      }
+    },
+    "dalle3": {
+      "name": "DALL-E 3",
+      "description": "Configuration pour DALL-E 3",
+      "params": {
+        "model": "dall-e-3",
+        "quality": "hd",
+        "size": "1024x1024",
+        "style": "vivid",
+        "n": 1
+      }
+    },
+    "leonardo": {
+      "name": "Leonardo AI",
+      "description": "Configuration pour Leonardo AI",
+      "params": {
+        "model": "leonardo-diffusion",
+        "guidance_scale": 7,
+        "num_inference_steps": 30,
+        "width": 768,
+        "height": 768,
+        "init_strength": 0.4,
+        "scheduler": "LEONARDO",
+        "preset_style": "LEONARDO",
+        "public": false
+      }
+    },
+    "playground": {
+      "name": "Playground AI",
+      "description": "Configuration pour Playground AI",
+      "params": {
+        "model": "playground-v2.5",
+        "guidance_scale": 3,
+        "num_inference_steps": 50,
+        "width": 1024,
+        "height": 1024,
+        "sampler": "K_EULER_ANCESTRAL",
+        "seed": -1,
+        "filter": "none"
+      }
+    },
+    "replicate_custom": {
+      "name": "Replicate Custom",
+      "description": "Template pour modèles Replicate personnalisés",
+      "params": {
+        "version": "model-version-id",
+        "input": {
+          "prompt": "",
+          "negative_prompt": "",
+          "width": 1024,
+          "height": 1024,
+          "num_outputs": 1,
+          "scheduler": "K_EULER",
+          "num_inference_steps": 50,
+          "guidance_scale": 7.5,
+          "prompt_strength": 0.8,
+          "seed": null
+        }
+      }
+    },
+    "comfyui": {
+      "name": "ComfyUI Workflow",
+      "description": "Paramètres pour workflow ComfyUI",
+      "params": {
+        "checkpoint": "model.safetensors",
+        "positive_prompt": "",
+        "negative_prompt": "",
+        "seed": -1,
+        "steps": 20,
+        "cfg": 8,
+        "sampler_name": "euler",
+        "scheduler": "normal",
+        "denoise": 1,
+        "batch_size": 1,
+        "width": 1024,
+        "height": 1024,
+        "vae": "vae-ft-mse-840000-ema-pruned.ckpt",
+        "clip_skip": -1,
+        "lora": []
+      }
+    },
+    "automatic1111": {
+      "name": "Automatic1111 WebUI",
+      "description": "Configuration pour Automatic1111",
+      "params": {
+        "prompt": "",
+        "negative_prompt": "",
+        "steps": 20,
+        "sampler_name": "Euler a",
+        "cfg_scale": 7,
+        "seed": -1,
+        "width": 512,
+        "height": 512,
+        "batch_size": 1,
+        "n_iter": 1,
+        "restore_faces": false,
+        "tiling": false,
+        "enable_hr": false,
+        "hr_scale": 2,
+        "hr_upscaler": "Latent",
+        "denoising_strength": 0.7
+      }
+    }
+  }
+}

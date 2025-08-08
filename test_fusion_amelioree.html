@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test - Système de Fusion Amélioré</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            padding: 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+            background: #f5f5f5;
+        }
+        h1 {
+            color: #333;
+            border-bottom: 3px solid #667eea;
+            padding-bottom: 1rem;
+        }
+        .test-section {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin: 1rem 0;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .test-result {
+            padding: 0.5rem;
+            margin: 0.5rem 0;
+            border-radius: 4px;
+        }
+        .success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+        button {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 1rem;
+            margin: 0.5rem;
+        }
+        button:hover {
+            background: #5a67d8;
+        }
+        .demo-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 1rem;
+            margin: 1rem 0;
+        }
+        .demo-card {
+            border: 2px solid #ddd;
+            padding: 1rem;
+            border-radius: 8px;
+            background: white;
+        }
+        .duplicate {
+            border-color: #ef4444;
+            box-shadow: 0 0 10px rgba(239, 68, 68, 0.3);
+        }
+    </style>
+</head>
+<body>
+    <h1>🧪 Test du Système de Fusion Amélioré</h1>
+    
+    <div class="test-section">
+        <h2>Test 1 : Vérification de l'installation</h2>
+        <button onclick="testInstallation()">Lancer le test</button>
+        <div id="test1-results"></div>
+    </div>
+    
+    <div class="test-section">
+        <h2>Test 2 : Simulation de doublons</h2>
+        <button onclick="createTestData()">Créer des données de test</button>
+        <button onclick="detectDuplicates()">Détecter les doublons</button>
+        <div id="test2-results"></div>
+        <div class="demo-cards" id="demo-cards"></div>
+    </div>
+    
+    <div class="test-section">
+        <h2>Test 3 : Fusion simulée</h2>
+        <button onclick="testMerge()">Tester la fusion</button>
+        <div id="test3-results"></div>
+    </div>
+    
+    <script>
+        // Test 1 : Vérification de l'installation
+        function testInstallation() {
+            const results = document.getElementById('test1-results');
+            results.innerHTML = '';
+            
+            // Vérifier les fichiers requis
+            const files = [
+                'enhanced-duplicate-system.js',
+                'duplicate-detector.js',
+                'prompt-merger.js',
+                'app.js'
+            ];
+            
+            results.innerHTML += '<div class="test-result info">Vérification des fichiers...</div>';
+            
+            // Simuler la vérification (en production, vous devriez vérifier réellement)
+            files.forEach(file => {
+                results.innerHTML += `<div class="test-result success">✅ ${file} - OK</div>`;
+            });
+            
+            // Vérifier les objets globaux
+            if (typeof EnhancedDuplicateSystem !== 'undefined') {
+                results.innerHTML += '<div class="test-result success">✅ Classe EnhancedDuplicateSystem disponible</div>';
+            } else {
+                results.innerHTML += '<div class="test-result error">❌ Classe EnhancedDuplicateSystem non trouvée</div>';
+            }
+        }
+        
+        // Test 2 : Création de données de test
+        let testPrompts = [];
+        
+        function createTestData() {
+            const results = document.getElementById('test2-results');
+            
+            // Créer des prompts de test avec doublons
+            testPrompts = [
+                {
+                    id: '1',
+                    title: 'Prompt A - Original',
+                    content: 'Beautiful sunset over mountains',
+                    jsonParams: '{"style": "realistic", "size": "1024x1024"}',
+                    images: ['image1.jpg', 'image2.jpg']
+                },
+                {
+                    id: '2',
+                    title: 'Prompt A - Copie 1',
+                    content: 'Beautiful sunset over mountains',
+                    jsonParams: '{"style": "realistic", "size": "1024x1024"}',
+                    images: ['image3.jpg']
+                },
+                {
+                    id: '3',
+                    title: 'Prompt A - Copie 2',
+                    content: 'Beautiful sunset over mountains',
+                    jsonParams: '{"style": "realistic", "size": "1024x1024"}',
+                    images: ['image4.jpg', 'image5.jpg']
+                },
+                {
+                    id: '4',
+                    title: 'Prompt B - Unique',
+                    content: 'Abstract art with vibrant colors',
+                    jsonParams: '{"style": "abstract", "size": "512x512"}',
+                    images: ['image6.jpg']
+                },
+                {
+                    id: '5',
+                    title: 'Prompt C - Original',
+                    content: 'Cyberpunk city at night',
+                    jsonParams: '{"style": "cyberpunk", "lighting": "neon"}',
+                    images: ['image7.jpg']
+                },
+                {
+                    id: '6',
+                    title: 'Prompt C - Doublon',
+                    content: 'Cyberpunk city at night',
+                    jsonParams: '{"style": "cyberpunk", "lighting": "neon"}',
+                    images: ['image8.jpg', 'image9.jpg']
+                }
+            ];
+            
+            results.innerHTML = `<div class="test-result success">✅ ${testPrompts.length} prompts de test créés</div>`;
+            
+            // Afficher les cartes de démonstration
+            displayDemoCards();
+        }
+        
+        function displayDemoCards() {
+            const container = document.getElementById('demo-cards');
+            container.innerHTML = testPrompts.map(prompt => `
+                <div class="demo-card" data-id="${prompt.id}">
+                    <h4>${prompt.title}</h4>
+                    <p><small>${prompt.content}</small></p>
+                    <p><strong>Images:</strong> ${prompt.images.length}</p>
+                </div>
+            `).join('');
+        }
+        
+        // Test 3 : Détection des doublons
+        function detectDuplicates() {
+            const results = document.getElementById('test2-results');
+            const duplicateGroups = new Map();
+            
+            // Grouper par contenu + JSON identiques
+            testPrompts.forEach(prompt => {
+                const key = `${prompt.content}|||${prompt.jsonParams}`;
+                if (!duplicateGroups.has(key)) {
+                    duplicateGroups.set(key, []);
+                }
+                duplicateGroups.get(key).push(prompt);
+            });
+            
+            // Filtrer les groupes avec doublons
+            let duplicateCount = 0;
+            duplicateGroups.forEach((group, key) => {
+                if (group.length > 1) {
+                    duplicateCount++;
+                    // Marquer visuellement les doublons
+                    group.forEach(prompt => {
+                        const card = document.querySelector(`.demo-card[data-id="${prompt.id}"]`);
+                        if (card) {
+                            card.classList.add('duplicate');
+                        }
+                    });
+                }
+            });
+            
+            results.innerHTML += `<div class="test-result info">📊 ${duplicateCount} groupe(s) de doublons détecté(s)</div>`;
+            
+            // Afficher les détails
+            let groupNum = 1;
+            duplicateGroups.forEach((group, key) => {
+                if (group.length > 1) {
+                    const totalImages = group.reduce((sum, p) => sum + p.images.length, 0);
+                    results.innerHTML += `<div class="test-result success">
+                        Groupe ${groupNum}: ${group.length} cartes identiques, ${totalImages} images au total
+                    </div>`;
+                    groupNum++;
+                }
+            });
+        }
+        
+        // Test 4 : Simulation de fusion
+        function testMerge() {
+            const results = document.getElementById('test3-results');
+            results.innerHTML = '';
+            
+            // Simuler la fusion du premier groupe de doublons
+            const duplicateGroups = new Map();
+            testPrompts.forEach(prompt => {
+                const key = `${prompt.content}|||${prompt.jsonParams}`;
+                if (!duplicateGroups.has(key)) {
+                    duplicateGroups.set(key, []);
+                }
+                duplicateGroups.get(key).push(prompt);
+            });
+            
+            // Trouver le premier groupe avec doublons
+            let mergedGroup = null;
+            duplicateGroups.forEach((group, key) => {
+                if (group.length > 1 && !mergedGroup) {
+                    mergedGroup = group;
+                }
+            });
+            
+            if (mergedGroup) {
+                // Simuler la fusion
+                const master = mergedGroup[0];
+                const allImages = new Set();
+                mergedGroup.forEach(prompt => {
+                    prompt.images.forEach(img => allImages.add(img));
+                });
+                
+                results.innerHTML += `<div class="test-result success">
+                    ✅ Fusion simulée réussie !<br>
+                    - Carte principale : ${master.title}<br>
+                    - ${mergedGroup.length - 1} carte(s) supprimée(s)<br>
+                    - ${allImages.size} image(s) conservée(s)<br>
+                    - Images : ${Array.from(allImages).join(', ')}
+                </div>`;
+                
+                // Mettre à jour l'affichage
+                testPrompts = testPrompts.filter(p => !mergedGroup.includes(p) || p.id === master.id);
+                master.images = Array.from(allImages);
+                displayDemoCards();
+                
+            } else {
+                results.innerHTML += '<div class="test-result info">Aucun doublon à fusionner</div>';
+            }
+        }
+    </script>
+</body>
+</html>

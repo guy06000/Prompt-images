@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Rapide - Fusion de Prompts</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 2rem;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        button {
+            padding: 10px 20px;
+            margin: 10px;
+            font-size: 16px;
+            cursor: pointer;
+            background: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+        }
+        button:hover {
+            background: #45a049;
+        }
+        .danger {
+            background: #f44336;
+        }
+        .danger:hover {
+            background: #da190b;
+        }
+        .info {
+            background: #2196F3;
+        }
+        .info:hover {
+            background: #0b7dda;
+        }
+        .result {
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 5px;
+            background: #f0f0f0;
+        }
+        .success {
+            background: #d4edda;
+            color: #155724;
+        }
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+        }
+    </style>
+</head>
+<body>
+    <h1>🧪 Test Rapide - Résolution du Problème</h1>
+    
+    <h2>1. Diagnostic</h2>
+    <button onclick="checkStorage()">📊 Vérifier l'état du stockage</button>
+    <div id="storageResult"></div>
+    
+    <h2>2. Nettoyage</h2>
+    <button onclick="cleanBackups()">🧹 Nettoyer les sauvegardes</button>
+    <button class="danger" onclick="clearAll()">🚨 Nettoyer TOUT (dernier recours)</button>
+    <div id="cleanResult"></div>
+    
+    <h2>3. Test de fusion</h2>
+    <button class="info" onclick="testSave()">💾 Tester la sauvegarde</button>
+    <div id="testResult"></div>
+    
+    <script>
+        function checkStorage() {
+            const result = document.getElementById('storageResult');
+            let totalSize = 0;
+            let count = 0;
+            
+            for (let key in localStorage) {
+                if (localStorage.hasOwnProperty(key)) {
+                    const value = localStorage.getItem(key);
+                    totalSize += new Blob([value]).size;
+                    count++;
+                }
+            }
+            
+            const mb = (totalSize / (1024 * 1024)).toFixed(2);
+            const percent = Math.round((totalSize / (5 * 1024 * 1024)) * 100);
+            
+            result.className = 'result ' + (percent > 90 ? 'error' : 'success');
+            result.innerHTML = `
+                <strong>État du stockage :</strong><br>
+                - Taille utilisée : ${mb} MB / ~5 MB<br>
+                - Pourcentage : ${percent}%<br>
+                - Nombre d'éléments : ${count}<br>
+                - Statut : ${percent > 90 ? '⚠️ CRITIQUE' : '✅ OK'}
+            `;
+        }
+        
+        function cleanBackups() {
+            const result = document.getElementById('cleanResult');
+            let removed = 0;
+            let spaceSaved = 0;
+            
+            const toRemove = [];
+            for (let key in localStorage) {
+                if (key.includes('auto_backup') || key.includes('backup_')) {
+                    const size = new Blob([localStorage.getItem(key)]).size;
+                    toRemove.push({key, size});
+                }
+            }
+            
+            // Garder seulement les 2 dernières
+            toRemove.sort((a, b) => a.key.localeCompare(b.key)).reverse();
+            if (toRemove.length > 2) {
+                toRemove.slice(2).forEach(item => {
+                    localStorage.removeItem(item.key);
+                    removed++;
+                    spaceSaved += item.size;
+                });
+            }
+            
+            result.className = 'result success';
+            result.innerHTML = `
+                ✅ Nettoyage terminé !<br>
+                - ${removed} sauvegarde(s) supprimée(s)<br>
+                - ${(spaceSaved / 1024).toFixed(2)} KB libérés
+            `;
+            
+            // Revérifier le stockage
+            setTimeout(checkStorage, 500);
+        }
+        
+        function clearAll() {
+            if (!confirm('⚠️ Ceci va TOUT supprimer ! Êtes-vous sûr ?')) return;
+            
+            const result = document.getElementById('cleanResult');
+            
+            // Sauvegarder l'essentiel
+            const prompts = localStorage.getItem('prompts');
+            const categories = localStorage.getItem('categories');
+            
+            // Tout effacer
+            localStorage.clear();
+            
+            // Restaurer l'essentiel
+            if (prompts) localStorage.setItem('prompts', prompts);
+            if (categories) localStorage.setItem('categories', categories);
+            
+            result.className = 'result success';
+            result.innerHTML = '✅ Stockage complètement nettoyé (prompts conservés)';
+            
+            setTimeout(checkStorage, 500);
+        }
+        
+        function testSave() {
+            const result = document.getElementById('testResult');
+            
+            try {
+                const testData = {
+                    test: true,
+                    date: new Date().toISOString(),
+                    data: 'x'.repeat(1000)
+                };
+                
+                localStorage.setItem('test_save', JSON.stringify(testData));
+                localStorage.removeItem('test_save');
+                
+                result.className = 'result success';
+                result.innerHTML = '✅ Test réussi ! La sauvegarde fonctionne.';
+            } catch (e) {
+                result.className = 'result error';
+                result.innerHTML = `❌ Erreur : ${e.message}<br>Utilisez le nettoyage ci-dessus.`;
+            }
+        }
+        
+        // Vérifier au chargement
+        window.onload = checkStorage;
+    </script>
+</body>
+</html>

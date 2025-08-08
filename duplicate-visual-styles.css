@@ -1,0 +1,349 @@
+/* ===== SYSTÈME DE DÉTECTION VISUELLE DES DOUBLONS ===== */
+
+/* Bouton de détection */
+#detectDuplicatesBtn {
+    position: relative;
+}
+
+#detectDuplicatesBtn.active {
+    background: var(--primary-color);
+    color: white;
+}
+
+#detectDuplicatesBtn .duplicate-badge {
+    position: absolute;
+    top: -5px;
+    right: -5px;
+    background: #ef4444;
+    color: white;
+    font-size: 0.7rem;
+    font-weight: bold;
+    padding: 2px 6px;
+    border-radius: 10px;
+    min-width: 18px;
+    text-align: center;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+/* Cartes en surbrillance */
+.prompt-card.duplicate-highlight {
+    position: relative;
+    animation: pulseHighlight 2s ease-in-out infinite;
+    border-width: 3px !important;
+    transform: scale(1.02);
+    z-index: 10;
+}
+
+@keyframes pulseHighlight {
+    0%, 100% { 
+        transform: scale(1.02);
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+    }
+    50% { 
+        transform: scale(1.03);
+        box-shadow: 0 6px 30px rgba(0, 0, 0, 0.3);
+    }
+}
+
+/* Couleurs des groupes */
+.prompt-card.duplicate-group-1 {
+    border-color: #ef4444 !important;
+    background: linear-gradient(135deg, rgba(239, 68, 68, 0.05) 0%, transparent 100%);
+}
+
+.prompt-card.duplicate-group-2 {
+    border-color: #f59e0b !important;
+    background: linear-gradient(135deg, rgba(245, 158, 11, 0.05) 0%, transparent 100%);
+}
+
+.prompt-card.duplicate-group-3 {
+    border-color: #10b981 !important;
+    background: linear-gradient(135deg, rgba(16, 185, 129, 0.05) 0%, transparent 100%);
+}
+
+.prompt-card.duplicate-group-4 {
+    border-color: #3b82f6 !important;
+    background: linear-gradient(135deg, rgba(59, 130, 246, 0.05) 0%, transparent 100%);
+}
+
+.prompt-card.duplicate-group-5 {
+    border-color: #a855f7 !important;
+    background: linear-gradient(135deg, rgba(168, 85, 247, 0.05) 0%, transparent 100%);
+}
+
+/* Badge de groupe sur la carte */
+.duplicate-group-badge {
+    position: absolute;
+    top: -12px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+    z-index: 20;
+    white-space: nowrap;
+}
+
+.duplicate-group-badge .group-label {
+    font-weight: 700;
+}
+
+.duplicate-group-badge .group-count {
+    opacity: 0.9;
+    font-size: 0.7rem;
+}
+
+/* Bouton de fusion sur chaque carte */
+.merge-single-btn {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border: none;
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+    z-index: 15;
+}
+
+.merge-single-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(102, 126, 234, 0.5);
+}
+
+/* Panneau de résultats */
+.duplicate-result-panel {
+    position: fixed;
+    right: 20px;
+    top: 80px;
+    width: 400px;
+    max-height: calc(100vh - 100px);
+    background: var(--bg-card);
+    border: 2px solid var(--border-color);
+    border-radius: var(--radius-lg);
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+    z-index: 100;
+    transform: translateX(420px);
+    transition: transform 0.3s ease;
+}
+
+.duplicate-result-panel.show {
+    transform: translateX(0);
+}
+
+.duplicate-result-panel .panel-header {
+    padding: 1rem;
+    background: var(--bg-secondary);
+    border-bottom: 1px solid var(--border-color);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+}
+
+.duplicate-result-panel .panel-header h3 {
+    margin: 0;
+    font-size: 1.1rem;
+    color: var(--text-primary);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.duplicate-result-panel .btn-close-panel {
+    background: transparent;
+    border: none;
+    color: var(--text-secondary);
+    cursor: pointer;
+    padding: 0.25rem;
+    font-size: 1.25rem;
+    transition: color 0.2s ease;
+}
+
+.duplicate-result-panel .btn-close-panel:hover {
+    color: var(--text-primary);
+}
+
+.duplicate-result-panel .panel-content {
+    padding: 1rem;
+    max-height: calc(100vh - 200px);
+    overflow-y: auto;
+}
+
+/* Stats de doublons */
+.stats-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+.stat-item {
+    background: var(--bg-secondary);
+    padding: 1rem;
+    border-radius: var(--radius-md);
+    text-align: center;
+}
+
+.stat-item i {
+    font-size: 1.5rem;
+    color: var(--primary-color);
+    display: block;
+    margin-bottom: 0.5rem;
+}
+
+.stat-value {
+    display: block;
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: var(--text-primary);
+}
+
+.stat-label {
+    display: block;
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    margin-top: 0.25rem;
+}
+
+/* Message "aucun doublon" */
+.no-duplicates {
+    text-align: center;
+    padding: 2rem;
+    color: var(--text-secondary);
+}
+
+.no-duplicates i {
+    font-size: 3rem;
+    color: #10b981;
+    display: block;
+    margin-bottom: 1rem;
+}
+
+.no-duplicates p {
+    margin: 0.5rem 0;
+    font-size: 1.1rem;
+    color: var(--text-primary);
+}
+
+.no-duplicates small {
+    color: var(--text-tertiary);
+}
+
+/* Groupes de doublons dans le panneau */
+.duplicate-group-item {
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    padding: 1rem;
+    margin-bottom: 1rem;
+}
+
+.duplicate-group-item .group-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.75rem;
+}
+
+.duplicate-group-item .group-title {
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.duplicate-group-item .group-info {
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+}
+
+.duplicate-group-item .group-preview {
+    background: var(--bg-tertiary);
+    padding: 0.5rem;
+    border-radius: var(--radius-sm);
+    font-family: monospace;
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+    margin-bottom: 0.75rem;
+    max-height: 60px;
+    overflow: hidden;
+}
+
+.duplicate-group-item .group-cards {
+    font-size: 0.85rem;
+    color: var(--text-tertiary);
+    margin-bottom: 0.75rem;
+}
+
+.duplicate-group-item .card-title {
+    color: var(--primary-color);
+}
+
+.btn-merge-group {
+    width: 100%;
+    background: var(--primary-color);
+    color: white;
+    border: none;
+    padding: 0.5rem;
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    font-size: 0.875rem;
+    transition: all 0.2s ease;
+}
+
+.btn-merge-group:hover {
+    background: var(--primary-hover);
+    transform: translateY(-1px);
+}
+
+/* Actions du panneau */
+.panel-actions {
+    padding: 1rem;
+    border-top: 1px solid var(--border-color);
+    display: flex;
+    gap: 0.5rem;
+}
+
+.panel-actions button {
+    flex: 1;
+    padding: 0.75rem;
+    border-radius: var(--radius-md);
+    font-size: 0.875rem;
+}
+
+/* Mode sombre */
+.dark .duplicate-result-panel {
+    background: var(--bg-card);
+    border-color: var(--border-color);
+}
+
+.dark .duplicate-group-item {
+    background: var(--bg-secondary);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .duplicate-result-panel {
+        width: calc(100% - 40px);
+        right: 20px;
+        left: 20px;
+    }
+    
+    .stats-grid {
+        grid-template-columns: 1fr;
+    }
+}

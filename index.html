@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Prompt Manager - Gestionnaire de Prompts Images IA</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="fix-image-display.css">
+    <link rel="stylesheet" href="duplicate-visual-styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Header -->
+        <header class="app-header">
+            <div class="header-content">
+                <h1><i class="fas fa-image"></i> Prompt Manager - Images IA</h1>
+                <div class="header-actions">
+                    <button class="btn-icon" id="themeToggle" title="Changer le thème">
+                        <i class="fas fa-moon"></i>
+                    </button>
+                    <button class="btn-icon" id="exportBtn" title="Exporter les prompts">
+                        <i class="fas fa-download"></i>
+                    </button>
+                    <button class="btn-icon" id="importBtn" title="Importer des prompts">
+                        <i class="fas fa-upload"></i>
+                    </button>
+                    <input type="file" id="importFile" accept=".json" style="display: none;">
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <!-- Sidebar -->
+            <aside class="sidebar">
+                <div class="search-box">
+                    <i class="fas fa-search"></i>
+                    <input type="text" id="searchInput" placeholder="Rechercher un prompt...">
+                </div>
+                
+                <div class="categories">
+                    <h3>Catégories</h3>
+                    <ul id="categoryList">
+                        <li class="category-item active" data-category="all">
+                            <i class="fas fa-folder"></i> Tous les prompts
+                            <span class="count">0</span>
+                        </li>
+                    </ul>
+                    <button class="btn-add-category" id="addCategoryBtn">
+                        <i class="fas fa-plus"></i> Nouvelle catégorie
+                    </button>
+                </div>
+            </aside>
+
+            <!-- Prompts Section -->
+            <section class="prompts-section">
+                <div class="prompts-header">
+                    <h2 id="sectionTitle">Tous les prompts</h2>
+                    <div style="display: flex; gap: 0.5rem;">
+                        <button class="btn-secondary" id="loadExamplesBtn" style="display: none;">
+                            <i class="fas fa-magic"></i> Charger des exemples
+                        </button>
+                        <button class="btn-primary" id="addPromptBtn">
+                            <i class="fas fa-plus"></i> Nouveau prompt
+                        </button>
+                    </div>
+                </div>
+
+                <div class="prompts-grid" id="promptsGrid">
+                    <!-- Les prompts seront ajoutés ici dynamiquement -->
+                </div>
+
+                <!-- Message quand aucun prompt -->
+                <div class="empty-state" id="emptyState">
+                    <i class="fas fa-clipboard-list"></i>
+                    <h3>Aucun prompt trouvé</h3>
+                    <p>Commencez par créer votre premier prompt</p>
+                    <button class="btn-primary" onclick="document.getElementById('addPromptBtn').click()">
+                        <i class="fas fa-plus"></i> Créer un prompt
+                    </button>
+                </div>
+            </section>
+        </div>
+    </div>
+
+    <!-- Modal pour ajouter/éditer un prompt -->
+    <div class="modal" id="promptModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modalTitle">Nouveau Prompt</h2>
+                <button class="btn-close" id="closeModal">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <form id="promptForm">
+                <div class="form-group">
+                    <label for="promptTitle">Titre *</label>
+                    <input type="text" id="promptTitle" required placeholder="Ex: Assistant Python">
+                </div>
+                
+                <div class="form-group">
+                    <label for="promptCategory">Catégorie *</label>
+                    <select id="promptCategory" required>
+                        <option value="">Sélectionner une catégorie</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="promptReplicateLink">Lien Replicate</label>
+                    <input type="url" id="promptReplicateLink" placeholder="https://replicate.com/...">
+                </div>
+                
+                <div class="form-group">
+                    <label for="promptDescription">Description</label>
+                    <input type="text" id="promptDescription" placeholder="Description courte (optionnel)">
+                </div>
+                
+                <div class="form-group">
+                    <label for="promptContent">Prompt *</label>
+                    <textarea id="promptContent" required rows="10" 
+                        placeholder="Entrez votre prompt ici..."></textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label for="promptComment">Commentaire / Notes personnelles</label>
+                    <textarea id="promptComment" rows="4" 
+                        placeholder="Ajoutez vos notes personnelles, retours d'expérience, paramètres utilisés, etc. (optionnel)"></textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label for="promptJson">
+                        Paramètres JSON 
+                        <button type="button" class="btn-format-json" onclick="app.formatJson()" title="Formater le JSON">
+                            <i class="fas fa-magic"></i>
+                        </button>
+                        <button type="button" class="btn-validate-json" onclick="app.validateJson()" title="Valider le JSON">
+                            <i class="fas fa-check-circle"></i>
+                        </button>
+                        <button type="button" class="btn-template-json" onclick="app.showJsonTemplates()" title="Insérer un template">
+                            <i class="fas fa-file-code"></i> Templates
+                        </button>
+                    </label>
+                    <textarea id="promptJson" rows="6" 
+                        placeholder='Exemple: {"model": "flux-1.1-pro", "guidance_scale": 3.5, "num_inference_steps": 25, "width": 1024, "height": 1024}'></textarea>
+                    <small id="jsonStatus" class="json-status"></small>
+                    <div id="jsonTemplates" class="json-templates" style="display: none;">
+                        <div class="templates-grid">
+                            <button type="button" onclick="app.insertTemplate('flux')" class="template-btn">Flux 1.1</button>
+                            <button type="button" onclick="app.insertTemplate('sdxl')" class="template-btn">SDXL</button>
+                            <button type="button" onclick="app.insertTemplate('sdxl_turbo')" class="template-btn">SDXL Turbo</button>
+                            <button type="button" onclick="app.insertTemplate('midjourney')" class="template-btn">Midjourney</button>
+                            <button type="button" onclick="app.insertTemplate('dalle3')" class="template-btn">DALL-E 3</button>
+                            <button type="button" onclick="app.insertTemplate('leonardo')" class="template-btn">Leonardo</button>
+                            <button type="button" onclick="app.insertTemplate('playground')" class="template-btn">Playground</button>
+                            <button type="button" onclick="app.insertTemplate('comfyui')" class="template-btn">ComfyUI</button>
+                            <button type="button" onclick="app.insertTemplate('automatic1111')" class="template-btn">A1111</button>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="promptTags">Tags (séparés par des virgules)</label>
+                    <input type="text" id="promptTags" placeholder="Ex: python, code, debug">
+                </div>
+                
+                <div class="form-group">
+                    <label for="promptImages">Images générées</label>
+                    <div class="image-upload-zone">
+                        <input type="file" id="promptImages" multiple accept="image/*" style="display: none;">
+                        <button type="button" class="btn-upload" onclick="document.getElementById('promptImages').click()">
+                            <i class="fas fa-image"></i> Ajouter des images
+                        </button>
+                        <small>Glissez-déposez ou cliquez pour ajouter des images (PNG, JPG, WebP)</small>
+                    </div>
+                    <div class="image-preview-grid" id="imagePreviewGrid">
+                        <!-- Les aperçus d'images seront ajoutés ici -->
+                    </div>
+                </div>
+                
+                <div class="modal-actions">
+                    <button type="button" class="btn-secondary" id="cancelBtn">Annuler</button>
+                    <button type="submit" class="btn-primary">
+                        <i class="fas fa-save"></i> Sauvegarder
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal pour ajouter une catégorie -->
+    <div class="modal" id="categoryModal">
+        <div class="modal-content modal-small">
+            <div class="modal-header">
+                <h2>Nouvelle Catégorie</h2>
+                <button class="btn-close" id="closeCategoryModal">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <form id="categoryForm">
+                <div class="form-group">
+                    <label for="categoryName">Nom de la catégorie *</label>
+                    <input type="text" id="categoryName" required placeholder="Ex: Développement">
+                </div>
+                
+                <div class="form-group">
+                    <label for="categoryIcon">Icône (classe Font Awesome)</label>
+                    <input type="text" id="categoryIcon" placeholder="Ex: fa-code">
+                    <small>Laissez vide pour l'icône par défaut</small>
+                </div>
+                
+                <div class="modal-actions">
+                    <button type="button" class="btn-secondary" id="cancelCategoryBtn">Annuler</button>
+                    <button type="submit" class="btn-primary">
+                        <i class="fas fa-save"></i> Créer
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Toast notifications -->
+    <div class="toast-container" id="toastContainer"></div>
+
+    <!-- Modal galerie d'images -->
+    <div class="image-gallery-modal" id="imageGalleryModal">
+        <div class="gallery-container">
+            <img src="" alt="" class="gallery-image" id="galleryImage">
+            <div class="gallery-controls">
+                <button id="galleryPrev"><i class="fas fa-chevron-left"></i></button>
+                <button id="galleryNext"><i class="fas fa-chevron-right"></i></button>
+            </div>
+            <button class="gallery-close" id="galleryClose"><i class="fas fa-times"></i></button>
+            <div class="gallery-info" id="galleryInfo">1 / 1</div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+    <script src="auto-backup.js"></script>
+    <script src="simple-duplicate-detector.js"></script>
+    <script src="duplicate-detector.js"></script>
+    <script src="prompt-merger.js"></script>
+    <script src="enhanced-duplicate-system.js"></script>
+    <script src="image-link-manager.js"></script>
+    <script src="app-image-patch.js"></script>
+    <script src="merge-links-patch.js"></script>
+</body>
+</html>

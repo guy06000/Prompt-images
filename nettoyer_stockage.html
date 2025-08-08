@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nettoyage et Réparation - Prompt Manager</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        .container {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+        h1 {
+            color: #333;
+            border-bottom: 3px solid #667eea;
+            padding-bottom: 15px;
+            margin-bottom: 30px;
+        }
+        .storage-info {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+        }
+        .storage-bar {
+            width: 100%;
+            height: 30px;
+            background: #e9ecef;
+            border-radius: 15px;
+            overflow: hidden;
+            margin: 15px 0;
+        }
+        .storage-used {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+            transition: width 0.5s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+        }
+        .warning {
+            background: #fff3cd;
+            border: 1px solid #ffc107;
+            color: #856404;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+        .success {
+            background: #d4edda;
+            border: 1px solid #28a745;
+            color: #155724;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+        button {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            margin: 5px;
+            transition: all 0.3s;
+        }
+        button:hover {
+            background: #5a67d8;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+        button.danger {
+            background: #dc3545;
+        }
+        button.danger:hover {
+            background: #c82333;
+        }
+        .backup-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px;
+            background: #f8f9fa;
+            margin: 5px 0;
+            border-radius: 5px;
+        }
+        .size-badge {
+            background: #6c757d;
+            color: white;
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+        }
+        #results {
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔧 Nettoyage et Réparation du Stockage</h1>
+        
+        <div class="warning">
+            <strong>⚠️ Problème détecté :</strong> Le stockage local est plein, ce qui empêche la fusion des prompts.
+        </div>
+        
+        <div class="storage-info">
+            <h3>📊 Analyse du stockage</h3>
+            <div id="storageAnalysis"></div>
+            <div class="storage-bar">
+                <div class="storage-used" id="storageBar" style="width: 0%">0%</div>
+            </div>
+        </div>
+        
+        <div id="results"></div>
+        
+        <h3>Actions disponibles :</h3>
+        
+        <button onclick="analyzeStorage()">
+            📊 Analyser le stockage
+        </button>
+        
+        <button onclick="cleanOldBackups()">
+            🧹 Nettoyer les anciennes sauvegardes
+        </button>
+        
+        <button onclick="optimizeStorage()">
+            ⚡ Optimiser le stockage
+        </button>
+        
+        <button onclick="exportAndClean()">
+            💾 Exporter et nettoyer
+        </button>
+        
+        <button class="danger" onclick="emergencyClean()">
+            🚨 Nettoyage d'urgence
+        </button>
+    </div>
+    
+    <script>
+        // Analyser le stockage
+        function analyzeStorage() {
+            const results = document.getElementById('results');
+            const analysis = document.getElementById('storageAnalysis');
+            
+            let totalSize = 0;
+            let items = [];
+            
+            try {
+                for (let key in localStorage) {
+                    if (localStorage.hasOwnProperty(key)) {
+                        const value = localStorage.getItem(key);
+                        const size = new Blob([value]).size;
+                        totalSize += size;
+                        items.push({
+                            key: key,
+                            size: size,
+                            readable: formatSize(size)
+                        });
+                    }
+                }
+                
+                items.sort((a, b) => b.size - a.size);
+                
+                const maxSize = 5 * 1024 * 1024; // 5MB approximatif
+                const percentage = Math.min((totalSize / maxSize) * 100, 100);
+                
+                analysis.innerHTML = `
+                    <p><strong>Espace utilisé :</strong> ${formatSize(totalSize)} / ~5 MB</p>
+                    <p><strong>Nombre d'éléments :</strong> ${items.length}</p>
+                    <h4>Top 5 des plus gros éléments :</h4>
+                    ${items.slice(0, 5).map(item => `
+                        <div class="backup-item">
+                            <span>${item.key}</span>
+                            <span class="size-badge">${item.readable}</span>
+                        </div>
+                    `).join('')}
+                `;
+                
+                document.getElementById('storageBar').style.width = percentage + '%';
+                document.getElementById('storageBar').textContent = Math.round(percentage) + '%';
+                
+                if (percentage > 90) {
+                    results.innerHTML = '<div class="warning">⚠️ Stockage critique ! Nettoyage recommandé.</div>';
+                } else if (percentage > 70) {
+                    results.innerHTML = '<div class="warning">⚠️ Stockage élevé. Considérez un nettoyage.</div>';
+                } else {
+                    results.innerHTML = '<div class="success">✅ Stockage normal.</div>';
+                }
+                
+            } catch (e) {
+                results.innerHTML = '<div class="warning">Erreur lors de l\'analyse : ' + e.message + '</div>';
+            }
+        }
+        
+        // Nettoyer les anciennes sauvegardes
+        function cleanOldBackups() {
+            const results = document.getElementById('results');
+            let cleaned = 0;
+            let spaceSaved = 0;
+            
+            try {
+                const keysToCheck = [];
+                for (let key in localStorage) {
+                    if (key.includes('backup') || key.includes('auto_backup')) {
+                        keysToCheck.push(key);
+                    }
+                }
+                
+                // Garder seulement les 3 dernières sauvegardes
+                const backups = keysToCheck
+                    .filter(k => k.includes('prompts_auto_backup_'))
+                    .sort()
+                    .reverse();
+                
+                if (backups.length > 3) {
+                    backups.slice(3).forEach(key => {
+                        spaceSaved += new Blob([localStorage.getItem(key)]).size;
+                        localStorage.removeItem(key);
+                        cleaned++;
+                    });
+                }
+                
+                results.innerHTML = `<div class="success">
+                    ✅ Nettoyage terminé !<br>
+                    - ${cleaned} sauvegarde(s) supprimée(s)<br>
+                    - ${formatSize(spaceSaved)} libéré(s)
+                </div>`;
+                
+                setTimeout(analyzeStorage, 500);
+                
+            } catch (e) {
+                results.innerHTML = '<div class="warning">Erreur : ' + e.message + '</div>';
+            }
+        }
+        
+        // Optimiser le stockage
+        function optimizeStorage() {
+            const results = document.getElementById('results');
+            
+            try {
+                // Récupérer les prompts actuels
+                const prompts = localStorage.getItem('prompts');
+                if (prompts) {
+                    // Compresser en supprimant les espaces inutiles
+                    const parsed = JSON.parse(prompts);
+                    const optimized = JSON.stringify(parsed);
+                    
+                    const originalSize = new Blob([prompts]).size;
+                    const newSize = new Blob([optimized]).size;
+                    const saved = originalSize - newSize;
+                    
+                    localStorage.setItem('prompts', optimized);
+                    
+                    results.innerHTML = `<div class="success">
+                        ✅ Optimisation terminée !<br>
+                        - Taille originale : ${formatSize(originalSize)}<br>
+                        - Nouvelle taille : ${formatSize(newSize)}<br>
+                        - Espace gagné : ${formatSize(saved)}
+                    </div>`;
+                }
+                
+                // Supprimer les clés temporaires
+                const tempKeys = [];
+                for (let key in localStorage) {
+                    if (key.includes('temp') || key.includes('draft')) {
+                        tempKeys.push(key);
+                    }
+                }
+                
+                tempKeys.forEach(key => localStorage.removeItem(key));
+                
+                setTimeout(analyzeStorage, 500);
+                
+            } catch (e) {
+                results.innerHTML = '<div class="warning">Erreur : ' + e.message + '</div>';
+            }
+        }
+        
+        // Exporter et nettoyer
+        function exportAndClean() {
+            const results = document.getElementById('results');
+            
+            try {
+                // Créer une sauvegarde complète
+                const backup = {
+                    date: new Date().toISOString(),
+                    prompts: localStorage.getItem('prompts'),
+                    categories: localStorage.getItem('categories'),
+                    settings: localStorage.getItem('autoBackupSettings')
+                };
+                
+                // Télécharger la sauvegarde
+                const blob = new Blob([JSON.stringify(backup, null, 2)], {type: 'application/json'});
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `backup_complet_${new Date().toISOString().split('T')[0]}.json`;
+                a.click();
+                
+                // Nettoyer les sauvegardes automatiques
+                for (let key in localStorage) {
+                    if (key.includes('auto_backup')) {
+                        localStorage.removeItem(key);
+                    }
+                }
+                
+                results.innerHTML = `<div class="success">
+                    ✅ Sauvegarde créée et nettoyage effectué !<br>
+                    Le fichier a été téléchargé dans vos téléchargements.
+                </div>`;
+                
+                setTimeout(analyzeStorage, 500);
+                
+            } catch (e) {
+                results.innerHTML = '<div class="warning">Erreur : ' + e.message + '</div>';
+            }
+        }
+        
+        // Nettoyage d'urgence
+        function emergencyClean() {
+            if (!confirm('⚠️ ATTENTION : Ceci va supprimer TOUTES les sauvegardes automatiques mais gardera vos prompts actuels. Continuer ?')) {
+                return;
+            }
+            
+            const results = document.getElementById('results');
+            
+            try {
+                // Sauvegarder l'essentiel
+                const essential = {
+                    prompts: localStorage.getItem('prompts'),
+                    categories: localStorage.getItem('categories')
+                };
+                
+                // Nettoyer tout sauf l'essentiel
+                const keysToRemove = [];
+                for (let key in localStorage) {
+                    if (!['prompts', 'categories', 'theme'].includes(key)) {
+                        keysToRemove.push(key);
+                    }
+                }
+                
+                keysToRemove.forEach(key => localStorage.removeItem(key));
+                
+                results.innerHTML = `<div class="success">
+                    ✅ Nettoyage d'urgence effectué !<br>
+                    - ${keysToRemove.length} élément(s) supprimé(s)<br>
+                    - Vos prompts et catégories sont conservés
+                </div>`;
+                
+                setTimeout(analyzeStorage, 500);
+                
+            } catch (e) {
+                results.innerHTML = '<div class="warning">Erreur : ' + e.message + '</div>';
+            }
+        }
+        
+        // Formater la taille
+        function formatSize(bytes) {
+            if (bytes < 1024) return bytes + ' B';
+            if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(2) + ' KB';
+            return (bytes / (1024 * 1024)).toFixed(2) + ' MB';
+        }
+        
+        // Analyser au chargement
+        window.onload = function() {
+            analyzeStorage();
+        };
+    </script>
+</body>
+</html>
