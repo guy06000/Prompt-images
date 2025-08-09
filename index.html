@@ -3,184 +3,1023 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Prompt Manager - Gestionnaire de Prompts Images IA</title>
-    <link rel="stylesheet" href="styles.css">
-    <link rel="stylesheet" href="fix-image-display.css">
-    <link rel="stylesheet" href="duplicate-visual-styles.css">
+    <title>Prompt Images - Gestionnaire de Prompts IA</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* Le CSS responsive que nous avons créé sera inclus ici */
+        /* Variables CSS pour le theming */
+:root {
+  --primary-color: #3498db;
+  --secondary-color: #2c3e50;
+  --success-color: #27ae60;
+  --danger-color: #e74c3c;
+  --warning-color: #f39c12;
+  --info-color: #17a2b8;
+  
+  --bg-color: #ffffff;
+  --surface-color: #f8f9fa;
+  --card-color: #ffffff;
+  --text-color: #333333;
+  --text-light: #666666;
+  --border-color: #dee2e6;
+  --shadow-color: rgba(0, 0, 0, 0.1);
+  
+  --border-radius: 8px;
+  --transition: all 0.3s ease;
+  --spacing-xs: 0.25rem;
+  --spacing-sm: 0.5rem;
+  --spacing-md: 1rem;
+  --spacing-lg: 1.5rem;
+  --spacing-xl: 2rem;
+}
+
+/* Mode sombre */
+[data-theme="dark"] {
+  --bg-color: #1a1a1a;
+  --surface-color: #2d2d2d;
+  --card-color: #3a3a3a;
+  --text-color: #ffffff;
+  --text-light: #cccccc;
+  --border-color: #444444;
+  --shadow-color: rgba(0, 0, 0, 0.3);
+}
+
+/* Reset et base */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  font-size: 16px;
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+  line-height: 1.6;
+  color: var(--text-color);
+  background-color: var(--bg-color);
+  transition: var(--transition);
+}
+
+/* Container principal */
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 var(--spacing-md);
+}
+
+/* Header responsive */
+.header {
+  background-color: var(--surface-color);
+  border-bottom: 1px solid var(--border-color);
+  padding: var(--spacing-md) 0;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  box-shadow: 0 2px 4px var(--shadow-color);
+}
+
+.header-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--spacing-md);
+}
+
+.logo {
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: var(--primary-color);
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  flex-wrap: wrap;
+}
+
+/* Navigation responsive */
+.nav {
+  display: flex;
+  gap: var(--spacing-sm);
+  flex-wrap: wrap;
+}
+
+.nav-item {
+  padding: var(--spacing-sm) var(--spacing-md);
+  background-color: var(--card-color);
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius);
+  cursor: pointer;
+  transition: var(--transition);
+  white-space: nowrap;
+}
+
+.nav-item:hover {
+  background-color: var(--primary-color);
+  color: white;
+}
+
+/* Barre de recherche responsive */
+.search-container {
+  position: relative;
+  width: 100%;
+  max-width: 400px;
+  margin: var(--spacing-md) 0;
+}
+
+.search-input {
+  width: 100%;
+  padding: var(--spacing-md);
+  border: 2px solid var(--border-color);
+  border-radius: var(--border-radius);
+  background-color: var(--card-color);
+  color: var(--text-color);
+  font-size: 1rem;
+  transition: var(--transition);
+}
+
+.search-input:focus {
+  outline: none;
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+}
+
+/* Layout principal responsive */
+.main-layout {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--spacing-lg);
+  margin-top: var(--spacing-lg);
+}
+
+/* Sidebar des catégories */
+.sidebar {
+  background-color: var(--surface-color);
+  border-radius: var(--border-radius);
+  padding: var(--spacing-lg);
+  height: fit-content;
+}
+
+.sidebar h3 {
+  margin-bottom: var(--spacing-md);
+  color: var(--text-color);
+}
+
+.categories-list {
+  list-style: none;
+}
+
+.category-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--spacing-sm);
+  margin-bottom: var(--spacing-xs);
+  border-radius: var(--border-radius);
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.category-item:hover {
+  background-color: var(--card-color);
+}
+
+.category-item.active {
+  background-color: var(--primary-color);
+  color: white;
+}
+
+.category-name {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+}
+
+.category-count {
+  background-color: var(--border-color);
+  color: var(--text-light);
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-size: 0.8rem;
+}
+
+/* Zone de contenu principal */
+.content {
+  flex: 1;
+}
+
+/* Grid de cartes responsive */
+.prompts-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: var(--spacing-lg);
+  margin-bottom: var(--spacing-xl);
+}
+
+/* Cartes de prompts */
+.prompt-card {
+  background-color: var(--card-color);
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius);
+  padding: var(--spacing-lg);
+  transition: var(--transition);
+  box-shadow: 0 2px 4px var(--shadow-color);
+}
+
+.prompt-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px var(--shadow-color);
+}
+
+.prompt-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: var(--spacing-md);
+  gap: var(--spacing-sm);
+}
+
+.prompt-title {
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: var(--text-color);
+  margin: 0;
+  word-break: break-word;
+}
+
+.prompt-actions {
+  display: flex;
+  gap: var(--spacing-xs);
+  flex-shrink: 0;
+}
+
+.action-btn {
+  padding: var(--spacing-xs);
+  border: none;
+  background: none;
+  cursor: pointer;
+  color: var(--text-light);
+  border-radius: 4px;
+  transition: var(--transition);
+}
+
+.action-btn:hover {
+  background-color: var(--border-color);
+}
+
+.prompt-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-sm);
+  margin-bottom: var(--spacing-md);
+}
+
+.prompt-category {
+  background-color: var(--primary-color);
+  color: white;
+  padding: var(--spacing-xs) var(--spacing-sm);
+  border-radius: 12px;
+  font-size: 0.8rem;
+}
+
+.prompt-content {
+  margin-bottom: var(--spacing-md);
+}
+
+.prompt-text {
+  background-color: var(--surface-color);
+  padding: var(--spacing-md);
+  border-radius: var(--border-radius);
+  border-left: 4px solid var(--primary-color);
+  font-family: 'Courier New', monospace;
+  font-size: 0.9rem;
+  line-height: 1.4;
+  word-break: break-word;
+  max-height: 150px;
+  overflow-y: auto;
+}
+
+.prompt-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-xs);
+  margin-bottom: var(--spacing-md);
+}
+
+.tag {
+  background-color: var(--info-color);
+  color: white;
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-size: 0.7rem;
+}
+
+/* Galerie d'images responsive */
+.image-gallery {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+  gap: var(--spacing-sm);
+  margin-bottom: var(--spacing-md);
+}
+
+.gallery-image {
+  width: 100%;
+  height: 100px;
+  object-fit: cover;
+  border-radius: var(--border-radius);
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.gallery-image:hover {
+  transform: scale(1.05);
+}
+
+/* Formulaires responsifs */
+.form-container {
+  background-color: var(--card-color);
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius);
+  padding: var(--spacing-lg);
+  margin-bottom: var(--spacing-lg);
+}
+
+.form-group {
+  margin-bottom: var(--spacing-lg);
+}
+
+.form-label {
+  display: block;
+  margin-bottom: var(--spacing-sm);
+  font-weight: 600;
+  color: var(--text-color);
+}
+
+.form-input,
+.form-textarea,
+.form-select {
+  width: 100%;
+  padding: var(--spacing-md);
+  border: 2px solid var(--border-color);
+  border-radius: var(--border-radius);
+  background-color: var(--card-color);
+  color: var(--text-color);
+  font-size: 1rem;
+  transition: var(--transition);
+  font-family: inherit;
+}
+
+.form-textarea {
+  min-height: 120px;
+  resize: vertical;
+}
+
+.form-input:focus,
+.form-textarea:focus,
+.form-select:focus {
+  outline: none;
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+}
+
+/* Boutons responsifs */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-sm);
+  padding: var(--spacing-md) var(--spacing-lg);
+  border: none;
+  border-radius: var(--border-radius);
+  cursor: pointer;
+  font-size: 1rem;
+  font-weight: 500;
+  text-decoration: none;
+  transition: var(--transition);
+  white-space: nowrap;
+}
+
+.btn-primary {
+  background-color: var(--primary-color);
+  color: white;
+}
+
+.btn-primary:hover {
+  background-color: #2980b9;
+}
+
+.btn-secondary {
+  background-color: var(--secondary-color);
+  color: white;
+}
+
+.btn-success {
+  background-color: var(--success-color);
+  color: white;
+}
+
+.btn-danger {
+  background-color: var(--danger-color);
+  color: white;
+}
+
+.btn-outline {
+  background-color: transparent;
+  color: var(--primary-color);
+  border: 2px solid var(--primary-color);
+}
+
+.btn-outline:hover {
+  background-color: var(--primary-color);
+  color: white;
+}
+
+/* Actions flottantes pour mobile */
+.floating-actions {
+  position: fixed;
+  bottom: var(--spacing-lg);
+  right: var(--spacing-lg);
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+  z-index: 50;
+}
+
+.floating-btn {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background-color: var(--primary-color);
+  color: white;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+  box-shadow: 0 4px 12px var(--shadow-color);
+  transition: var(--transition);
+}
+
+.floating-btn:hover {
+  transform: scale(1.1);
+}
+
+/* Modal responsive */
+.modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: var(--spacing-md);
+}
+
+.modal-content {
+  background-color: var(--card-color);
+  border-radius: var(--border-radius);
+  padding: var(--spacing-lg);
+  max-width: 600px;
+  width: 100%;
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--spacing-lg);
+}
+
+.modal-title {
+  font-size: 1.5rem;
+  font-weight: 600;
+}
+
+.close-btn {
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+  color: var(--text-light);
+}
+
+/* Toggle theme */
+.theme-toggle {
+  background: none;
+  border: 2px solid var(--border-color);
+  border-radius: var(--border-radius);
+  padding: var(--spacing-sm);
+  cursor: pointer;
+  color: var(--text-color);
+  transition: var(--transition);
+}
+
+.theme-toggle:hover {
+  border-color: var(--primary-color);
+}
+
+/* Messages de statut */
+.alert {
+  padding: var(--spacing-md);
+  border-radius: var(--border-radius);
+  margin-bottom: var(--spacing-md);
+  border-left: 4px solid;
+}
+
+.alert-success {
+  background-color: rgba(39, 174, 96, 0.1);
+  border-color: var(--success-color);
+  color: var(--success-color);
+}
+
+.alert-danger {
+  background-color: rgba(231, 76, 60, 0.1);
+  border-color: var(--danger-color);
+  color: var(--danger-color);
+}
+
+.alert-warning {
+  background-color: rgba(243, 156, 18, 0.1);
+  border-color: var(--warning-color);
+  color: var(--warning-color);
+}
+
+/* Loading spinner */
+.spinner {
+  border: 3px solid var(--border-color);
+  border-top: 3px solid var(--primary-color);
+  border-radius: 50%;
+  width: 30px;
+  height: 30px;
+  animation: spin 1s linear infinite;
+  margin: 0 auto;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Utilities */
+.text-center { text-align: center; }
+.text-left { text-align: left; }
+.text-right { text-align: right; }
+
+.mt-0 { margin-top: 0; }
+.mt-1 { margin-top: var(--spacing-sm); }
+.mt-2 { margin-top: var(--spacing-md); }
+.mt-3 { margin-top: var(--spacing-lg); }
+
+.mb-0 { margin-bottom: 0; }
+.mb-1 { margin-bottom: var(--spacing-sm); }
+.mb-2 { margin-bottom: var(--spacing-md); }
+.mb-3 { margin-bottom: var(--spacing-lg); }
+
+.hidden { display: none; }
+.visible { display: block; }
+
+/* Media Queries pour responsive design */
+
+/* Tablettes (768px et plus) */
+@media (min-width: 768px) {
+  .container {
+    padding: 0 var(--spacing-lg);
+  }
+  
+  .main-layout {
+    grid-template-columns: 250px 1fr;
+  }
+  
+  .prompts-grid {
+    grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+  }
+  
+  .header-content {
+    flex-wrap: nowrap;
+  }
+  
+  .search-container {
+    margin: 0;
+  }
+}
+
+/* Desktop (1024px et plus) */
+@media (min-width: 1024px) {
+  .main-layout {
+    grid-template-columns: 300px 1fr;
+  }
+  
+  .prompts-grid {
+    grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
+  }
+  
+  .floating-actions {
+    display: none; /* Cache les boutons flottants sur desktop */
+  }
+}
+
+/* Mobile (767px et moins) */
+@media (max-width: 767px) {
+  html {
+    font-size: 14px;
+  }
+  
+  .container {
+    padding: 0 var(--spacing-sm);
+  }
+  
+  .header {
+    padding: var(--spacing-sm) 0;
+  }
+  
+  .header-content {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  
+  .header-actions {
+    justify-content: center;
+  }
+  
+  .nav {
+    justify-content: center;
+  }
+  
+  .nav-item {
+    flex: 1;
+    text-align: center;
+    min-width: 0;
+  }
+  
+  .logo {
+    text-align: center;
+    font-size: 1.3rem;
+  }
+  
+  .main-layout {
+    gap: var(--spacing-md);
+  }
+  
+  .sidebar {
+    order: 2;
+    padding: var(--spacing-md);
+  }
+  
+  .content {
+    order: 1;
+  }
+  
+  .prompts-grid {
+    grid-template-columns: 1fr;
+    gap: var(--spacing-md);
+  }
+  
+  .prompt-card {
+    padding: var(--spacing-md);
+  }
+  
+  .prompt-header {
+    flex-direction: column;
+    align-items: stretch;
+    gap: var(--spacing-sm);
+  }
+  
+  .prompt-actions {
+    justify-content: flex-end;
+  }
+  
+  .form-container {
+    padding: var(--spacing-md);
+  }
+  
+  .modal {
+    padding: var(--spacing-sm);
+  }
+  
+  .modal-content {
+    padding: var(--spacing-md);
+  }
+  
+  .btn {
+    padding: var(--spacing-sm) var(--spacing-md);
+    font-size: 0.9rem;
+  }
+  
+  .floating-actions {
+    bottom: var(--spacing-md);
+    right: var(--spacing-md);
+  }
+  
+  .floating-btn {
+    width: 50px;
+    height: 50px;
+    font-size: 1.2rem;
+  }
+  
+  /* Amélioration des formulaires sur mobile */
+  .form-input,
+  .form-textarea,
+  .form-select {
+    font-size: 16px; /* Évite le zoom sur iOS */
+  }
+  
+  /* Optimisation des cartes sur mobile */
+  .image-gallery {
+    grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+  }
+  
+  .gallery-image {
+    height: 80px;
+  }
+  
+  /* Stack les éléments horizontaux sur mobile */
+  .prompt-meta {
+    flex-direction: column;
+    gap: var(--spacing-xs);
+  }
+  
+  .categories-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: var(--spacing-xs);
+  }
+}
+
+/* Mobile très petit (480px et moins) */
+@media (max-width: 480px) {
+  .container {
+    padding: 0 var(--spacing-xs);
+  }
+  
+  .header {
+    padding: var(--spacing-xs) 0;
+  }
+  
+  .floating-actions {
+    bottom: var(--spacing-sm);
+    right: var(--spacing-sm);
+  }
+  
+  .floating-btn {
+    width: 45px;
+    height: 45px;
+    font-size: 1rem;
+  }
+  
+  .prompt-text {
+    font-size: 0.8rem;
+    max-height: 100px;
+  }
+  
+  .nav-item {
+    padding: var(--spacing-xs) var(--spacing-sm);
+    font-size: 0.9rem;
+  }
+}
+
+/* Mode paysage mobile */
+@media (max-width: 767px) and (orientation: landscape) {
+  .main-layout {
+    grid-template-columns: 200px 1fr;
+  }
+  
+  .sidebar {
+    order: 1;
+  }
+  
+  .content {
+    order: 2;
+  }
+}
+
+/* Accessibilité et préférences utilisateur */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg-color: #1a1a1a;
+    --surface-color: #2d2d2d;
+    --card-color: #3a3a3a;
+    --text-color: #ffffff;
+    --text-light: #cccccc;
+    --border-color: #444444;
+    --shadow-color: rgba(0, 0, 0, 0.3);
+  }
+}
+
+/* Print styles */
+@media print {
+  .header,
+  .sidebar,
+  .floating-actions,
+  .action-btn {
+    display: none;
+  }
+  
+  .prompts-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .prompt-card {
+    break-inside: avoid;
+    box-shadow: none;
+    border: 1px solid #000;
+  }
+}
+    </style>
 </head>
 <body>
-    <div class="app-container">
-        <!-- Header -->
-        <header class="app-header">
+    <!-- Header -->
+    <header class="header">
+        <div class="container">
             <div class="header-content">
-                <h1><i class="fas fa-image"></i> Prompt Manager - Images IA</h1>
-                <div class="header-actions">
-                    <button class="btn-icon" id="themeToggle" title="Changer le thème">
-                        <i class="fas fa-moon"></i>
-                    </button>
-                    <button class="btn-icon" id="exportBtn" title="Exporter les prompts">
-                        <i class="fas fa-download"></i>
-                    </button>
-                    <button class="btn-icon" id="importBtn" title="Importer des prompts">
-                        <i class="fas fa-upload"></i>
-                    </button>
-                    <input type="file" id="importFile" accept=".json" style="display: none;">
-                </div>
-            </div>
-        </header>
-
-        <!-- Main Content -->
-        <div class="main-content">
-            <!-- Sidebar -->
-            <aside class="sidebar">
-                <div class="search-box">
-                    <i class="fas fa-search"></i>
-                    <input type="text" id="searchInput" placeholder="Rechercher un prompt...">
+                <div class="logo">
+                    <i class="fas fa-robot"></i> Prompt Images
                 </div>
                 
-                <div class="categories">
-                    <h3>Catégories</h3>
-                    <ul id="categoryList">
-                        <li class="category-item active" data-category="all">
-                            <i class="fas fa-folder"></i> Tous les prompts
-                            <span class="count">0</span>
-                        </li>
-                    </ul>
-                    <button class="btn-add-category" id="addCategoryBtn">
-                        <i class="fas fa-plus"></i> Nouvelle catégorie
+                <div class="search-container">
+                    <input type="text" 
+                           class="search-input" 
+                           placeholder="Rechercher dans les prompts, tags, catégories..."
+                           id="searchInput">
+                    <i class="fas fa-search"></i>
+                </div>
+                
+                <div class="header-actions">
+                    <button class="theme-toggle" id="themeToggle" title="Changer le thème">
+                        <i class="fas fa-moon"></i>
+                    </button>
+                    <button class="btn btn-primary" id="newPromptBtn">
+                        <i class="fas fa-plus"></i>
+                        <span class="btn-text">Nouveau</span>
                     </button>
                 </div>
+            </div>
+            
+            <div class="nav">
+                <div class="nav-item" id="loadExamplesBtn">
+                    <i class="fas fa-download"></i> Exemples
+                </div>
+                <div class="nav-item" id="importBtn">
+                    <i class="fas fa-file-import"></i> Importer
+                </div>
+                <div class="nav-item" id="exportBtn">
+                    <i class="fas fa-file-export"></i> Exporter
+                </div>
+                <div class="nav-item" id="duplicateCheckBtn">
+                    <i class="fas fa-search-plus"></i> Doublons
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Layout principal -->
+    <div class="container">
+        <div class="main-layout">
+            <!-- Sidebar des catégories -->
+            <aside class="sidebar">
+                <h3>
+                    <i class="fas fa-folder"></i> Catégories
+                    <button class="btn btn-outline btn-sm" id="newCategoryBtn" style="float: right; padding: 0.25rem 0.5rem; font-size: 0.8rem;">
+                        <i class="fas fa-plus"></i>
+                    </button>
+                </h3>
+                <ul class="categories-list" id="categoriesList">
+                    <li class="category-item active" data-category="all">
+                        <span class="category-name">
+                            <i class="fas fa-list"></i>
+                            Tous les prompts
+                        </span>
+                        <span class="category-count" id="allCount">0</span>
+                    </li>
+                </ul>
             </aside>
 
-            <!-- Prompts Section -->
-            <section class="prompts-section">
-                <div class="prompts-header">
-                    <h2 id="sectionTitle">Tous les prompts</h2>
-                    <div style="display: flex; gap: 0.5rem;">
-                        <button class="btn-secondary" id="loadExamplesBtn" style="display: none;">
-                            <i class="fas fa-magic"></i> Charger des exemples
+            <!-- Contenu principal -->
+            <main class="content">
+                <!-- Messages d'alerte -->
+                <div id="alertContainer"></div>
+                
+                <!-- Zone vide state -->
+                <div id="emptyState" class="text-center" style="padding: 3rem;">
+                    <i class="fas fa-robot" style="font-size: 4rem; color: var(--text-light); margin-bottom: 1rem;"></i>
+                    <h2>Aucun prompt trouvé</h2>
+                    <p style="color: var(--text-light); margin-bottom: 2rem;">
+                        Commencez par créer votre premier prompt ou chargez des exemples
+                    </p>
+                    <div style="display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;">
+                        <button class="btn btn-primary" id="newPromptEmptyBtn">
+                            <i class="fas fa-plus"></i> Créer un prompt
                         </button>
-                        <button class="btn-primary" id="addPromptBtn">
-                            <i class="fas fa-plus"></i> Nouveau prompt
+                        <button class="btn btn-outline" id="loadExamplesEmptyBtn">
+                            <i class="fas fa-download"></i> Charger des exemples
                         </button>
                     </div>
                 </div>
 
+                <!-- Grid des prompts -->
                 <div class="prompts-grid" id="promptsGrid">
-                    <!-- Les prompts seront ajoutés ici dynamiquement -->
+                    <!-- Les cartes de prompts seront générées ici -->
                 </div>
-
-                <!-- Message quand aucun prompt -->
-                <div class="empty-state" id="emptyState">
-                    <i class="fas fa-clipboard-list"></i>
-                    <h3>Aucun prompt trouvé</h3>
-                    <p>Commencez par créer votre premier prompt</p>
-                    <button class="btn-primary" onclick="document.getElementById('addPromptBtn').click()">
-                        <i class="fas fa-plus"></i> Créer un prompt
-                    </button>
-                </div>
-            </section>
+            </main>
         </div>
     </div>
 
-    <!-- Modal pour ajouter/éditer un prompt -->
-    <div class="modal" id="promptModal">
+    <!-- Actions flottantes pour mobile -->
+    <div class="floating-actions">
+        <button class="floating-btn" id="searchToggle" title="Rechercher">
+            <i class="fas fa-search"></i>
+        </button>
+        <button class="floating-btn" id="newPromptFloat" title="Nouveau prompt">
+            <i class="fas fa-plus"></i>
+        </button>
+        <button class="floating-btn" id="scrollToTop" title="Haut de page">
+            <i class="fas fa-arrow-up"></i>
+        </button>
+    </div>
+
+    <!-- Modal pour créer/éditer un prompt -->
+    <div class="modal hidden" id="promptModal">
         <div class="modal-content">
             <div class="modal-header">
-                <h2 id="modalTitle">Nouveau Prompt</h2>
-                <button class="btn-close" id="closeModal">
-                    <i class="fas fa-times"></i>
-                </button>
+                <h2 class="modal-title" id="modalTitle">Nouveau Prompt</h2>
+                <button class="close-btn" id="closeModal">&times;</button>
             </div>
+            
             <form id="promptForm">
                 <div class="form-group">
-                    <label for="promptTitle">Titre *</label>
-                    <input type="text" id="promptTitle" required placeholder="Ex: Assistant Python">
+                    <label class="form-label" for="promptTitle">Titre *</label>
+                    <input type="text" class="form-input" id="promptTitle" required>
                 </div>
                 
                 <div class="form-group">
-                    <label for="promptCategory">Catégorie *</label>
-                    <select id="promptCategory" required>
+                    <label class="form-label" for="promptCategory">Catégorie</label>
+                    <select class="form-select" id="promptCategory">
                         <option value="">Sélectionner une catégorie</option>
                     </select>
                 </div>
                 
                 <div class="form-group">
-                    <label for="promptReplicateLink">Lien Replicate</label>
-                    <input type="url" id="promptReplicateLink" placeholder="https://replicate.com/...">
+                    <label class="form-label" for="replicateLink">Lien Replicate (optionnel)</label>
+                    <input type="url" class="form-input" id="replicateLink" placeholder="https://replicate.com/...">
                 </div>
                 
                 <div class="form-group">
-                    <label for="promptDescription">Description</label>
-                    <input type="text" id="promptDescription" placeholder="Description courte (optionnel)">
+                    <label class="form-label" for="promptDescription">Description (optionnel)</label>
+                    <input type="text" class="form-input" id="promptDescription" placeholder="Description courte du prompt">
                 </div>
                 
                 <div class="form-group">
-                    <label for="promptContent">Prompt *</label>
-                    <textarea id="promptContent" required rows="10" 
-                        placeholder="Entrez votre prompt ici..."></textarea>
+                    <label class="form-label" for="promptText">Prompt *</label>
+                    <textarea class="form-textarea" id="promptText" required placeholder="Votre prompt ici..."></textarea>
                 </div>
                 
                 <div class="form-group">
-                    <label for="promptComment">Commentaire / Notes personnelles</label>
-                    <textarea id="promptComment" rows="4" 
-                        placeholder="Ajoutez vos notes personnelles, retours d'expérience, paramètres utilisés, etc. (optionnel)"></textarea>
+                    <label class="form-label" for="promptComment">Commentaire/Notes (optionnel)</label>
+                    <textarea class="form-textarea" id="promptComment" placeholder="Paramètres utilisés, retours d'expérience, conseils..."></textarea>
                 </div>
                 
                 <div class="form-group">
-                    <label for="promptJson">
-                        Paramètres JSON 
-                        <button type="button" class="btn-format-json" onclick="app.formatJson()" title="Formater le JSON">
-                            <i class="fas fa-magic"></i>
-                        </button>
-                        <button type="button" class="btn-validate-json" onclick="app.validateJson()" title="Valider le JSON">
-                            <i class="fas fa-check-circle"></i>
-                        </button>
-                        <button type="button" class="btn-template-json" onclick="app.showJsonTemplates()" title="Insérer un template">
-                            <i class="fas fa-file-code"></i> Templates
-                        </button>
-                    </label>
-                    <textarea id="promptJson" rows="6" 
-                        placeholder='Exemple: {"model": "flux-1.1-pro", "guidance_scale": 3.5, "num_inference_steps": 25, "width": 1024, "height": 1024}'></textarea>
-                    <small id="jsonStatus" class="json-status"></small>
-                    <div id="jsonTemplates" class="json-templates" style="display: none;">
-                        <div class="templates-grid">
-                            <button type="button" onclick="app.insertTemplate('flux')" class="template-btn">Flux 1.1</button>
-                            <button type="button" onclick="app.insertTemplate('sdxl')" class="template-btn">SDXL</button>
-                            <button type="button" onclick="app.insertTemplate('sdxl_turbo')" class="template-btn">SDXL Turbo</button>
-                            <button type="button" onclick="app.insertTemplate('midjourney')" class="template-btn">Midjourney</button>
-                            <button type="button" onclick="app.insertTemplate('dalle3')" class="template-btn">DALL-E 3</button>
-                            <button type="button" onclick="app.insertTemplate('leonardo')" class="template-btn">Leonardo</button>
-                            <button type="button" onclick="app.insertTemplate('playground')" class="template-btn">Playground</button>
-                            <button type="button" onclick="app.insertTemplate('comfyui')" class="template-btn">ComfyUI</button>
-                            <button type="button" onclick="app.insertTemplate('automatic1111')" class="template-btn">A1111</button>
-                        </div>
-                    </div>
+                    <label class="form-label" for="promptTags">Tags (optionnel)</label>
+                    <input type="text" class="form-input" id="promptTags" placeholder="tag1, tag2, tag3...">
+                    <small style="color: var(--text-light);">Séparez les tags par des virgules</small>
                 </div>
                 
                 <div class="form-group">
-                    <label for="promptTags">Tags (séparés par des virgules)</label>
-                    <input type="text" id="promptTags" placeholder="Ex: python, code, debug">
+                    <label class="form-label" for="promptImages">Images (optionnel)</label>
+                    <input type="file" class="form-input" id="promptImages" multiple accept="image/*">
+                    <small style="color: var(--text-light);">Glissez-déposez des images ou cliquez pour sélectionner</small>
+                    <div id="imagePreview" class="image-gallery mt-2"></div>
                 </div>
                 
                 <div class="form-group">
-                    <label for="promptImages">Images générées</label>
-                    <div class="image-upload-zone">
-                        <input type="file" id="promptImages" multiple accept="image/*" style="display: none;">
-                        <button type="button" class="btn-upload" onclick="document.getElementById('promptImages').click()">
-                            <i class="fas fa-image"></i> Ajouter des images
-                        </button>
-                        <small>Glissez-déposez ou cliquez pour ajouter des images (PNG, JPG, WebP)</small>
-                    </div>
-                    <div class="image-preview-grid" id="imagePreviewGrid">
-                        <!-- Les aperçus d'images seront ajoutés ici -->
-                    </div>
+                    <label class="form-label" for="promptJson">Paramètres JSON (optionnel)</label>
+                    <textarea class="form-textarea" id="promptJson" placeholder='{"cfg_scale": 7, "steps": 20, "width": 512, "height": 512}'></textarea>
+                    <small style="color: var(--text-light);">Configuration JSON du modèle d'IA</small>
                 </div>
                 
-                <div class="modal-actions">
-                    <button type="button" class="btn-secondary" id="cancelBtn">Annuler</button>
-                    <button type="submit" class="btn-primary">
+                <div style="display: flex; gap: 1rem; justify-content: flex-end; flex-wrap: wrap;">
+                    <button type="button" class="btn btn-secondary" id="cancelBtn">Annuler</button>
+                    <button type="submit" class="btn btn-primary" id="saveBtn">
                         <i class="fas fa-save"></i> Sauvegarder
                     </button>
                 </div>
@@ -188,30 +1027,37 @@
         </div>
     </div>
 
-    <!-- Modal pour ajouter une catégorie -->
-    <div class="modal" id="categoryModal">
-        <div class="modal-content modal-small">
+    <!-- Modal pour créer une nouvelle catégorie -->
+    <div class="modal hidden" id="categoryModal">
+        <div class="modal-content">
             <div class="modal-header">
-                <h2>Nouvelle Catégorie</h2>
-                <button class="btn-close" id="closeCategoryModal">
-                    <i class="fas fa-times"></i>
-                </button>
+                <h2 class="modal-title">Nouvelle Catégorie</h2>
+                <button class="close-btn" id="closeCategoryModal">&times;</button>
             </div>
+            
             <form id="categoryForm">
                 <div class="form-group">
-                    <label for="categoryName">Nom de la catégorie *</label>
-                    <input type="text" id="categoryName" required placeholder="Ex: Développement">
+                    <label class="form-label" for="categoryName">Nom de la catégorie *</label>
+                    <input type="text" class="form-input" id="categoryName" required>
                 </div>
                 
                 <div class="form-group">
-                    <label for="categoryIcon">Icône (classe Font Awesome)</label>
-                    <input type="text" id="categoryIcon" placeholder="Ex: fa-code">
-                    <small>Laissez vide pour l'icône par défaut</small>
+                    <label class="form-label" for="categoryIcon">Icône</label>
+                    <select class="form-select" id="categoryIcon">
+                        <option value="fas fa-folder">📁 Dossier</option>
+                        <option value="fas fa-image">🖼️ Image</option>
+                        <option value="fas fa-palette">🎨 Palette</option>
+                        <option value="fas fa-robot">🤖 Robot</option>
+                        <option value="fas fa-star">⭐ Étoile</option>
+                        <option value="fas fa-heart">❤️ Cœur</option>
+                        <option value="fas fa-lightning">⚡ Éclair</option>
+                        <option value="fas fa-magic">🪄 Magie</option>
+                    </select>
                 </div>
                 
-                <div class="modal-actions">
-                    <button type="button" class="btn-secondary" id="cancelCategoryBtn">Annuler</button>
-                    <button type="submit" class="btn-primary">
+                <div style="display: flex; gap: 1rem; justify-content: flex-end;">
+                    <button type="button" class="btn btn-secondary" id="cancelCategoryBtn">Annuler</button>
+                    <button type="submit" class="btn btn-primary">
                         <i class="fas fa-save"></i> Créer
                     </button>
                 </div>
@@ -219,30 +1065,453 @@
         </div>
     </div>
 
-    <!-- Toast notifications -->
-    <div class="toast-container" id="toastContainer"></div>
+    <!-- Input caché pour l'import -->
+    <input type="file" id="importInput" accept=".json" style="display: none;">
 
-    <!-- Modal galerie d'images -->
-    <div class="image-gallery-modal" id="imageGalleryModal">
-        <div class="gallery-container">
-            <img src="" alt="" class="gallery-image" id="galleryImage">
-            <div class="gallery-controls">
-                <button id="galleryPrev"><i class="fas fa-chevron-left"></i></button>
-                <button id="galleryNext"><i class="fas fa-chevron-right"></i></button>
-            </div>
-            <button class="gallery-close" id="galleryClose"><i class="fas fa-times"></i></button>
-            <div class="gallery-info" id="galleryInfo">1 / 1</div>
-        </div>
-    </div>
-
-    <script src="app.js"></script>
-    <script src="auto-backup.js"></script>
-    <script src="simple-duplicate-detector.js"></script>
-    <script src="duplicate-detector.js"></script>
-    <script src="prompt-merger.js"></script>
-    <script src="enhanced-duplicate-system.js"></script>
-    <script src="image-link-manager.js"></script>
-    <script src="app-image-patch.js"></script>
-    <script src="merge-links-patch.js"></script>
+    <script>
+        // JavaScript basique pour les interactions
+        document.addEventListener('DOMContentLoaded', function() {
+            // Variables globales
+            let prompts = JSON.parse(localStorage.getItem('prompts') || '[]');
+            let categories = JSON.parse(localStorage.getItem('categories') || '[]');
+            let currentFilter = 'all';
+            let searchTerm = '';
+            let editingPromptId = null;
+            
+            // Initialisation des catégories par défaut
+            if (categories.length === 0) {
+                categories = [
+                    { id: 'flux', name: 'Flux', icon: 'fas fa-robot', count: 0 },
+                    { id: 'krea', name: 'Krea', icon: 'fas fa-palette', count: 0 },
+                    { id: 'portraits', name: 'Portraits', icon: 'fas fa-user', count: 0 },
+                    { id: 'paysages', name: 'Paysages', icon: 'fas fa-mountain', count: 0 },
+                    { id: 'concept-art', name: 'Concept Art', icon: 'fas fa-brush', count: 0 },
+                    { id: 'realiste', name: 'Réaliste', icon: 'fas fa-camera', count: 0 },
+                    { id: 'artistique', name: 'Artistique', icon: 'fas fa-paint-brush', count: 0 },
+                    { id: 'autre', name: 'Autre', icon: 'fas fa-folder', count: 0 }
+                ];
+                localStorage.setItem('categories', JSON.stringify(categories));
+            }
+            
+            // Event listeners
+            setupEventListeners();
+            
+            // Rendu initial
+            renderCategories();
+            renderPrompts();
+            updateCounts();
+            
+            if (prompts.length === 0) {
+                showEmptyState();
+            }
+            
+            function setupEventListeners() {
+                // Navigation et boutons principaux
+                document.getElementById('newPromptBtn').addEventListener('click', () => openPromptModal());
+                document.getElementById('newPromptFloat').addEventListener('click', () => openPromptModal());
+                document.getElementById('newPromptEmptyBtn').addEventListener('click', () => openPromptModal());
+                document.getElementById('themeToggle').addEventListener('click', toggleTheme);
+                document.getElementById('searchInput').addEventListener('input', handleSearch);
+                
+                // Boutons d'import/export
+                document.getElementById('importBtn').addEventListener('click', () => document.getElementById('importInput').click());
+                document.getElementById('exportBtn').addEventListener('click', exportData);
+                document.getElementById('loadExamplesBtn').addEventListener('click', loadExamples);
+                document.getElementById('loadExamplesEmptyBtn').addEventListener('click', loadExamples);
+                
+                // Modales
+                document.getElementById('closeModal').addEventListener('click', closePromptModal);
+                document.getElementById('cancelBtn').addEventListener('click', closePromptModal);
+                document.getElementById('promptForm').addEventListener('submit', savePrompt);
+                
+                // Actions flottantes
+                document.getElementById('scrollToTop').addEventListener('click', () => window.scrollTo(0, 0));
+                
+                // Import de fichier
+                document.getElementById('importInput').addEventListener('change', importData);
+                
+                // Détection du thème système
+                if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+                    document.body.setAttribute('data-theme', 'dark');
+                }
+            }
+            
+            function openPromptModal(prompt = null) {
+                editingPromptId = prompt ? prompt.id : null;
+                document.getElementById('modalTitle').textContent = prompt ? 'Modifier le Prompt' : 'Nouveau Prompt';
+                
+                if (prompt) {
+                    document.getElementById('promptTitle').value = prompt.title || '';
+                    document.getElementById('promptCategory').value = prompt.category || '';
+                    document.getElementById('replicateLink').value = prompt.replicateLink || '';
+                    document.getElementById('promptDescription').value = prompt.description || '';
+                    document.getElementById('promptText').value = prompt.text || '';
+                    document.getElementById('promptComment').value = prompt.comment || '';
+                    document.getElementById('promptTags').value = prompt.tags ? prompt.tags.join(', ') : '';
+                    document.getElementById('promptJson').value = prompt.json || '';
+                } else {
+                    document.getElementById('promptForm').reset();
+                }
+                
+                updateCategorySelect();
+                document.getElementById('promptModal').classList.remove('hidden');
+            }
+            
+            function closePromptModal() {
+                document.getElementById('promptModal').classList.add('hidden');
+                editingPromptId = null;
+            }
+            
+            function savePrompt(e) {
+                e.preventDefault();
+                
+                const formData = new FormData(e.target);
+                const promptData = {
+                    id: editingPromptId || Date.now().toString(),
+                    title: document.getElementById('promptTitle').value.trim(),
+                    category: document.getElementById('promptCategory').value,
+                    replicateLink: document.getElementById('replicateLink').value.trim(),
+                    description: document.getElementById('promptDescription').value.trim(),
+                    text: document.getElementById('promptText').value.trim(),
+                    comment: document.getElementById('promptComment').value.trim(),
+                    tags: document.getElementById('promptTags').value.split(',').map(tag => tag.trim()).filter(tag => tag),
+                    json: document.getElementById('promptJson').value.trim(),
+                    createdAt: editingPromptId ? prompts.find(p => p.id === editingPromptId).createdAt : new Date().toISOString(),
+                    updatedAt: new Date().toISOString()
+                };
+                
+                if (editingPromptId) {
+                    const index = prompts.findIndex(p => p.id === editingPromptId);
+                    prompts[index] = promptData;
+                } else {
+                    prompts.unshift(promptData);
+                }
+                
+                localStorage.setItem('prompts', JSON.stringify(prompts));
+                renderPrompts();
+                updateCounts();
+                closePromptModal();
+                
+                showAlert('Prompt sauvegardé avec succès !', 'success');
+            }
+            
+            function renderCategories() {
+                const container = document.getElementById('categoriesList');
+                const allItem = container.querySelector('[data-category="all"]');
+                
+                // Nettoie les catégories existantes sauf "Tous"
+                const existingCategories = container.querySelectorAll('[data-category]:not([data-category="all"])');
+                existingCategories.forEach(item => item.remove());
+                
+                categories.forEach(category => {
+                    const li = document.createElement('li');
+                    li.className = 'category-item';
+                    li.setAttribute('data-category', category.id);
+                    li.innerHTML = `
+                        <span class="category-name">
+                            <i class="${category.icon}"></i>
+                            ${category.name}
+                        </span>
+                        <span class="category-count">${category.count || 0}</span>
+                    `;
+                    li.addEventListener('click', () => filterByCategory(category.id));
+                    container.appendChild(li);
+                });
+            }
+            
+            function renderPrompts() {
+                const container = document.getElementById('promptsGrid');
+                const filteredPrompts = getFilteredPrompts();
+                
+                if (filteredPrompts.length === 0) {
+                    showEmptyState();
+                    container.innerHTML = '';
+                    return;
+                }
+                
+                hideEmptyState();
+                
+                container.innerHTML = filteredPrompts.map(prompt => `
+                    <div class="prompt-card">
+                        <div class="prompt-header">
+                            <h3 class="prompt-title">${escapeHtml(prompt.title)}</h3>
+                            <div class="prompt-actions">
+                                <button class="action-btn" onclick="copyPrompt('${prompt.id}')" title="Copier">
+                                    <i class="fas fa-copy"></i>
+                                </button>
+                                <button class="action-btn" onclick="editPrompt('${prompt.id}')" title="Modifier">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                <button class="action-btn" onclick="deletePrompt('${prompt.id}')" title="Supprimer">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div class="prompt-meta">
+                            ${prompt.category ? `<span class="prompt-category">${escapeHtml(getCategoryName(prompt.category))}</span>` : ''}
+                            ${prompt.description ? `<small style="color: var(--text-light);">${escapeHtml(prompt.description)}</small>` : ''}
+                        </div>
+                        
+                        <div class="prompt-content">
+                            <div class="prompt-text">${escapeHtml(prompt.text)}</div>
+                        </div>
+                        
+                        ${prompt.tags && prompt.tags.length > 0 ? `
+                            <div class="prompt-tags">
+                                ${prompt.tags.map(tag => `<span class="tag">${escapeHtml(tag)}</span>`).join('')}
+                            </div>
+                        ` : ''}
+                        
+                        ${prompt.comment ? `
+                            <div style="background-color: var(--surface-color); padding: var(--spacing-sm); border-radius: var(--border-radius); margin-top: var(--spacing-sm);">
+                                <small><strong>Note:</strong> ${escapeHtml(prompt.comment)}</small>
+                            </div>
+                        ` : ''}
+                        
+                        ${prompt.replicateLink ? `
+                            <div style="margin-top: var(--spacing-sm);">
+                                <a href="${escapeHtml(prompt.replicateLink)}" target="_blank" class="btn btn-outline" style="font-size: 0.8rem; padding: 0.25rem 0.5rem;">
+                                    <i class="fas fa-external-link-alt"></i> Replicate
+                                </a>
+                            </div>
+                        ` : ''}
+                    </div>
+                `).join('');
+            }
+            
+            function getFilteredPrompts() {
+                return prompts.filter(prompt => {
+                    const matchesCategory = currentFilter === 'all' || prompt.category === currentFilter;
+                    const matchesSearch = !searchTerm || 
+                        prompt.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                        prompt.text.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                        (prompt.description && prompt.description.toLowerCase().includes(searchTerm.toLowerCase())) ||
+                        (prompt.comment && prompt.comment.toLowerCase().includes(searchTerm.toLowerCase())) ||
+                        (prompt.tags && prompt.tags.some(tag => tag.toLowerCase().includes(searchTerm.toLowerCase())));
+                    
+                    return matchesCategory && matchesSearch;
+                });
+            }
+            
+            function updateCounts() {
+                const allCount = prompts.length;
+                document.getElementById('allCount').textContent = allCount;
+                
+                categories.forEach(category => {
+                    category.count = prompts.filter(p => p.category === category.id).length;
+                    const element = document.querySelector(`[data-category="${category.id}"] .category-count`);
+                    if (element) {
+                        element.textContent = category.count;
+                    }
+                });
+                
+                localStorage.setItem('categories', JSON.stringify(categories));
+            }
+            
+            function filterByCategory(categoryId) {
+                currentFilter = categoryId;
+                
+                // Met à jour l'UI
+                document.querySelectorAll('.category-item').forEach(item => {
+                    item.classList.remove('active');
+                });
+                document.querySelector(`[data-category="${categoryId}"]`).classList.add('active');
+                
+                renderPrompts();
+            }
+            
+            function handleSearch(e) {
+                searchTerm = e.target.value;
+                renderPrompts();
+            }
+            
+            function updateCategorySelect() {
+                const select = document.getElementById('promptCategory');
+                select.innerHTML = '<option value="">Sélectionner une catégorie</option>';
+                
+                categories.forEach(category => {
+                    const option = document.createElement('option');
+                    option.value = category.id;
+                    option.textContent = category.name;
+                    select.appendChild(option);
+                });
+            }
+            
+            function getCategoryName(categoryId) {
+                const category = categories.find(c => c.id === categoryId);
+                return category ? category.name : 'Sans catégorie';
+            }
+            
+            function showEmptyState() {
+                document.getElementById('emptyState').classList.remove('hidden');
+            }
+            
+            function hideEmptyState() {
+                document.getElementById('emptyState').classList.add('hidden');
+            }
+            
+            function showAlert(message, type = 'success') {
+                const container = document.getElementById('alertContainer');
+                const alert = document.createElement('div');
+                alert.className = `alert alert-${type}`;
+                alert.innerHTML = `
+                    ${message}
+                    <button style="float: right; background: none; border: none; color: inherit; cursor: pointer;" onclick="this.parentElement.remove()">×</button>
+                `;
+                container.appendChild(alert);
+                
+                setTimeout(() => {
+                    if (alert.parentElement) {
+                        alert.remove();
+                    }
+                }, 5000);
+            }
+            
+            function toggleTheme() {
+                const currentTheme = document.body.getAttribute('data-theme');
+                const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+                document.body.setAttribute('data-theme', newTheme);
+                
+                const icon = document.querySelector('#themeToggle i');
+                icon.className = newTheme === 'dark' ? 'fas fa-sun' : 'fas fa-moon';
+                
+                localStorage.setItem('theme', newTheme);
+            }
+            
+            function exportData() {
+                const data = {
+                    prompts: prompts,
+                    categories: categories,
+                    exportDate: new Date().toISOString(),
+                    version: '1.0'
+                };
+                
+                const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `prompts-export-${new Date().toISOString().split('T')[0]}.json`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+                
+                showAlert('Export réussi !', 'success');
+            }
+            
+            function importData(e) {
+                const file = e.target.files[0];
+                if (!file) return;
+                
+                const reader = new FileReader();
+                reader.onload = function(event) {
+                    try {
+                        const data = JSON.parse(event.target.result);
+                        
+                        if (data.prompts) {
+                            prompts = data.prompts;
+                            localStorage.setItem('prompts', JSON.stringify(prompts));
+                        }
+                        
+                        if (data.categories) {
+                            categories = data.categories;
+                            localStorage.setItem('categories', JSON.stringify(categories));
+                        }
+                        
+                        renderCategories();
+                        renderPrompts();
+                        updateCounts();
+                        
+                        showAlert('Import réussi !', 'success');
+                    } catch (error) {
+                        showAlert('Erreur lors de l\'import du fichier', 'danger');
+                    }
+                };
+                reader.readAsText(file);
+                
+                // Reset input
+                e.target.value = '';
+            }
+            
+            function loadExamples() {
+                const examples = [
+                    {
+                        id: 'example1',
+                        title: 'Portrait futuriste',
+                        category: 'portraits',
+                        text: 'portrait of a cyberpunk woman with neon hair, digital art, highly detailed, 8k resolution',
+                        description: 'Portrait style cyberpunk',
+                        tags: ['cyberpunk', 'portrait', 'futuriste'],
+                        comment: 'Fonctionne bien avec CFG 7-9, Steps 25-30',
+                        createdAt: new Date().toISOString()
+                    },
+                    {
+                        id: 'example2',
+                        title: 'Paysage fantastique',
+                        category: 'paysages',
+                        text: 'magical forest with floating islands, ethereal lighting, fantasy landscape, concept art',
+                        description: 'Paysage fantasy épique',
+                        tags: ['fantasy', 'paysage', 'magie'],
+                        comment: 'Meilleur rendu avec Sampler DPM++ 2M',
+                        createdAt: new Date().toISOString()
+                    }
+                ];
+                
+                examples.forEach(example => {
+                    if (!prompts.find(p => p.id === example.id)) {
+                        prompts.unshift(example);
+                    }
+                });
+                
+                localStorage.setItem('prompts', JSON.stringify(prompts));
+                renderPrompts();
+                updateCounts();
+                
+                showAlert('Exemples chargés avec succès !', 'success');
+            }
+            
+            function escapeHtml(text) {
+                const div = document.createElement('div');
+                div.textContent = text;
+                return div.innerHTML;
+            }
+            
+            // Fonctions globales pour les boutons
+            window.copyPrompt = function(id) {
+                const prompt = prompts.find(p => p.id === id);
+                if (prompt) {
+                    navigator.clipboard.writeText(prompt.text).then(() => {
+                        showAlert('Prompt copié dans le presse-papier !', 'success');
+                    });
+                }
+            };
+            
+            window.editPrompt = function(id) {
+                const prompt = prompts.find(p => p.id === id);
+                if (prompt) {
+                    openPromptModal(prompt);
+                }
+            };
+            
+            window.deletePrompt = function(id) {
+                if (confirm('Êtes-vous sûr de vouloir supprimer ce prompt ?')) {
+                    prompts = prompts.filter(p => p.id !== id);
+                    localStorage.setItem('prompts', JSON.stringify(prompts));
+                    renderPrompts();
+                    updateCounts();
+                    showAlert('Prompt supprimé', 'success');
+                }
+            };
+            
+            // Chargement du thème sauvegardé
+            const savedTheme = localStorage.getItem('theme');
+            if (savedTheme) {
+                document.body.setAttribute('data-theme', savedTheme);
+                const icon = document.querySelector('#themeToggle i');
+                icon.className = savedTheme === 'dark' ? 'fas fa-sun' : 'fas fa-moon';
+            }
+        });
+    </script>
 </body>
 </html>
