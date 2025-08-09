@@ -1,4 +1,4 @@
-// Gestionnaire de prompts - Application principale
+// Gestionnaire de prompts - Application principale avec optimisations mobile
 class PromptManager {
     constructor() {
         this.prompts = this.loadPrompts();
@@ -8,6 +8,7 @@ class PromptManager {
         this.tempImages = []; // Images temporaires pour le formulaire
         this.galleryImages = []; // Images pour la galerie
         this.currentGalleryIndex = 0;
+        this.isMobile = window.innerWidth <= 768; // Détection mobile
         this.init();
     }
 
@@ -18,6 +19,40 @@ class PromptManager {
         this.renderPrompts();
         this.updateTheme();
         this.checkForExamples();
+        this.initMobileFeatures();
+    }
+    
+    // Initialiser les fonctionnalités mobiles
+    initMobileFeatures() {
+        if (this.isMobile) {
+            // Ajuster la hauteur pour iOS
+            this.setViewportHeight();
+            window.addEventListener('resize', () => this.setViewportHeight());
+            window.addEventListener('orientationchange', () => this.setViewportHeight());
+            
+            // Optimiser les performances
+            this.optimizeMobilePerformance();
+        }
+    }
+    
+    // Ajuster la hauteur du viewport pour iOS
+    setViewportHeight() {
+        const vh = window.innerHeight * 0.01;
+        document.documentElement.style.setProperty('--vh', `${vh}px`);
+    }
+    
+    // Optimiser les performances sur mobile
+    optimizeMobilePerformance() {
+        // Lazy loading des images
+        const images = document.querySelectorAll('img');
+        images.forEach(img => {
+            img.setAttribute('loading', 'lazy');
+        });
+        
+        // Réduire les animations si nécessaire
+        if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+            document.documentElement.style.setProperty('--animation-duration', '0.01s');
+        }
     }
     
     // Vérifier si on doit afficher le bouton pour charger les exemples
@@ -39,9 +74,9 @@ class PromptManager {
     loadCategories() {
         const stored = localStorage.getItem('categories');
         const defaultCategories = [
-            { id: 'flux', name: 'Flux', icon: 'fa-bolt' },
+            { id: 'flux', name: 'Flux', icon: 'fa-stream' },
             { id: 'krea', name: 'Krea', icon: 'fa-palette' },
-            { id: 'portrait', name: 'Portraits', icon: 'fa-user' },
+            { id: 'portrait', name: 'Portraits', icon: 'fa-user-circle' },
             { id: 'landscape', name: 'Paysages', icon: 'fa-mountain' },
             { id: 'concept', name: 'Concept Art', icon: 'fa-drafting-compass' },
             { id: 'realistic', name: 'Réaliste', icon: 'fa-camera' },
@@ -63,8 +98,16 @@ class PromptManager {
     // Configuration des événements
     setupEventListeners() {
         // Boutons principaux
-        document.getElementById('addPromptBtn').addEventListener('click', () => this.openPromptModal());
-        document.getElementById('addCategoryBtn').addEventListener('click', () => this.openCategoryModal());
+        const addPromptBtn = document.getElementById('addPromptBtn');
+        if (addPromptBtn) {
+            addPromptBtn.addEventListener('click', () => this.openPromptModal());
+        }
+        
+        const addCategoryBtn = document.getElementById('addCategoryBtn');
+        if (addCategoryBtn) {
+            addCategoryBtn.addEventListener('click', () => this.openCategoryModal());
+        }
+        
         document.getElementById('themeToggle').addEventListener('click', () => this.toggleTheme());
         document.getElementById('exportBtn').addEventListener('click', () => this.exportData());
         document.getElementById('importBtn').addEventListener('click', () => {
@@ -79,99 +122,202 @@ class PromptManager {
         }
         
         // Recherche
-        document.getElementById('searchInput').addEventListener('input', (e) => {
-            this.searchPrompts(e.target.value);
-        });
+        const searchInput = document.getElementById('searchInput') || document.getElementById('searchBar');
+        if (searchInput) {
+            searchInput.addEventListener('input', (e) => {
+                this.searchPrompts(e.target.value);
+            });
+        }
         
         // Modal Prompt
-        document.getElementById('closeModal').addEventListener('click', () => this.closePromptModal());
-        document.getElementById('cancelBtn').addEventListener('click', () => this.closePromptModal());
-        document.getElementById('promptForm').addEventListener('submit', (e) => this.savePrompt(e));
+        const closeModal = document.getElementById('closeModal');
+        if (closeModal) {
+            closeModal.addEventListener('click', () => this.closePromptModal());
+        }
+        
+        const cancelBtn = document.getElementById('cancelBtn');
+        if (cancelBtn) {
+            cancelBtn.addEventListener('click', () => this.closePromptModal());
+        }
+        
+        const promptForm = document.getElementById('promptForm');
+        if (promptForm) {
+            promptForm.addEventListener('submit', (e) => this.savePrompt(e));
+        }
         
         // Modal Catégorie
-        document.getElementById('closeCategoryModal').addEventListener('click', () => this.closeCategoryModal());
-        document.getElementById('cancelCategoryBtn').addEventListener('click', () => this.closeCategoryModal());
-        document.getElementById('categoryForm').addEventListener('submit', (e) => this.saveCategory(e));
+        const closeCategoryModal = document.getElementById('closeCategoryModal');
+        if (closeCategoryModal) {
+            closeCategoryModal.addEventListener('click', () => this.closeCategoryModal());
+        }
+        
+        const cancelCategoryBtn = document.getElementById('cancelCategoryBtn');
+        if (cancelCategoryBtn) {
+            cancelCategoryBtn.addEventListener('click', () => this.closeCategoryModal());
+        }
+        
+        const categoryForm = document.getElementById('categoryForm');
+        if (categoryForm) {
+            categoryForm.addEventListener('submit', (e) => this.saveCategory(e));
+        }
         
         // Upload d'images
-        document.getElementById('promptImages').addEventListener('change', (e) => this.handleImageUpload(e));
+        const promptImages = document.getElementById('promptImages') || document.getElementById('imageInput');
+        if (promptImages) {
+            promptImages.addEventListener('change', (e) => this.handleImageUpload(e));
+        }
         
         // Drag and drop pour les images
-        const uploadZone = document.querySelector('.image-upload-zone');
-        uploadZone.addEventListener('dragover', (e) => {
-            e.preventDefault();
-            uploadZone.classList.add('drag-over');
-        });
-        uploadZone.addEventListener('dragleave', () => {
-            uploadZone.classList.remove('drag-over');
-        });
-        uploadZone.addEventListener('drop', (e) => {            e.preventDefault();
-            uploadZone.classList.remove('drag-over');
-            this.handleImageDrop(e);
-        });
+        const uploadZone = document.querySelector('.image-upload-zone') || document.getElementById('imageUploadZone');
+        if (uploadZone) {
+            // Click pour sélectionner sur mobile
+            uploadZone.addEventListener('click', () => {
+                const imageInput = document.getElementById('promptImages') || document.getElementById('imageInput');
+                if (imageInput) imageInput.click();
+            });
+            
+            uploadZone.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                uploadZone.classList.add('drag-over');
+            });
+            uploadZone.addEventListener('dragleave', () => {
+                uploadZone.classList.remove('drag-over');
+            });
+            uploadZone.addEventListener('drop', (e) => {
+                e.preventDefault();
+                uploadZone.classList.remove('drag-over');
+                this.handleImageDrop(e);
+            });
+        }
         
         // Galerie d'images
-        document.getElementById('galleryClose').addEventListener('click', () => this.closeGallery());
-        document.getElementById('galleryPrev').addEventListener('click', () => this.galleryPrevious());
-        document.getElementById('galleryNext').addEventListener('click', () => this.galleryNext());
-        document.getElementById('imageGalleryModal').addEventListener('click', (e) => {
-            if (e.target.id === 'imageGalleryModal') this.closeGallery();
-        });
+        const galleryClose = document.getElementById('galleryClose');
+        if (galleryClose) {
+            galleryClose.addEventListener('click', () => this.closeGallery());
+        }
+        
+        const galleryPrev = document.getElementById('galleryPrev');
+        if (galleryPrev) {
+            galleryPrev.addEventListener('click', () => this.galleryPrevious());
+        }
+        
+        const galleryNext = document.getElementById('galleryNext');
+        if (galleryNext) {
+            galleryNext.addEventListener('click', () => this.galleryNext());
+        }
+        
+        const imageGalleryModal = document.getElementById('imageGalleryModal');
+        if (imageGalleryModal) {
+            imageGalleryModal.addEventListener('click', (e) => {
+                if (e.target.id === 'imageGalleryModal') this.closeGallery();
+            });
+        }
         
         // Fermer modal en cliquant dehors
-        document.getElementById('promptModal').addEventListener('click', (e) => {
-            if (e.target.id === 'promptModal') this.closePromptModal();
-        });
-        document.getElementById('categoryModal').addEventListener('click', (e) => {
-            if (e.target.id === 'categoryModal') this.closeCategoryModal();
-        });
+        const promptModal = document.getElementById('promptModal');
+        if (promptModal) {
+            promptModal.addEventListener('click', (e) => {
+                if (e.target.id === 'promptModal') this.closePromptModal();
+            });
+        }
+        
+        const categoryModal = document.getElementById('categoryModal');
+        if (categoryModal) {
+            categoryModal.addEventListener('click', (e) => {
+                if (e.target.id === 'categoryModal') this.closeCategoryModal();
+            });
+        }
+        
+        // Gestion du scroll pour le bouton "scroll to top" sur mobile
+        if (this.isMobile) {
+            window.addEventListener('scroll', () => {
+                const scrollBtn = document.getElementById('scrollTopBtn');
+                if (scrollBtn) {
+                    if (window.scrollY > 300) {
+                        scrollBtn.style.display = 'flex';
+                    } else {
+                        scrollBtn.style.display = 'none';
+                    }
+                }
+            });
+        }
     }
     
     // Rendu des catégories
     renderCategories() {
         const list = document.getElementById('categoryList');
-        const selectCategory = document.getElementById('promptCategory');
+        const selectCategory = document.getElementById('promptCategory') || document.getElementById('category');
+        const categoryFilters = document.getElementById('categoryFilters');
         
         // Compter les prompts par catégorie
         const counts = { all: this.prompts.length };
-        this.categories.forEach(cat => {            counts[cat.id] = this.prompts.filter(p => p.category === cat.id).length;
+        this.categories.forEach(cat => {
+            counts[cat.id] = this.prompts.filter(p => p.category === cat.id).length;
         });
         
-        // Catégorie "Tous"
-        let html = `
-            <li class="category-item ${this.currentCategory === 'all' ? 'active' : ''}" 
-                data-category="all" onclick="app.filterByCategory('all')">
-                <span><i class="fas fa-folder"></i> Tous les prompts</span>
-                <span class="count">${counts.all}</span>
-            </li>
-        `;
-        
-        // Options pour le select
-        let options = '<option value="">Sélectionner une catégorie</option>';
-        
-        // Autres catégories
-        this.categories.forEach(cat => {
-            const promptCount = counts[cat.id] || 0;
-            
-            html += `
-                <li class="category-item ${this.currentCategory === cat.id ? 'active' : ''}" 
-                    data-category="${cat.id}">
-                    <div class="category-content">
-                        <div class="category-main" onclick="app.filterByCategory('${cat.id}')">
-                            <span><i class="fas ${cat.icon || 'fa-folder'}"></i> ${cat.name}</span>
-                            <span class="count">${promptCount}</span>
-                        </div>
-                        <button class="btn-delete-category" onclick="event.stopPropagation(); app.deleteCategory('${cat.id}')" title="Supprimer la catégorie">
-                            <i class="fas fa-trash"></i>
-                        </button>
-                    </div>
+        // Pour la liste de catégories (sidebar desktop)
+        if (list) {
+            let html = `
+                <li class="category-item ${this.currentCategory === 'all' ? 'active' : ''}" 
+                    data-category="all" onclick="app.filterByCategory('all')">
+                    <span><i class="fas fa-folder"></i> Tous les prompts</span>
+                    <span class="count">${counts.all}</span>
                 </li>
             `;
-            options += `<option value="${cat.id}">${cat.name}</option>`;
-        });
+            
+            this.categories.forEach(cat => {
+                const promptCount = counts[cat.id] || 0;
+                
+                html += `
+                    <li class="category-item ${this.currentCategory === cat.id ? 'active' : ''}" 
+                        data-category="${cat.id}">
+                        <div class="category-content">
+                            <div class="category-main" onclick="app.filterByCategory('${cat.id}')">
+                                <span><i class="fas ${cat.icon || 'fa-folder'}"></i> ${cat.name}</span>
+                                <span class="count">${promptCount}</span>
+                            </div>
+                            <button class="btn-delete-category" onclick="event.stopPropagation(); app.deleteCategory('${cat.id}')" title="Supprimer la catégorie">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    </li>
+                `;
+            });
+            
+            list.innerHTML = html;
+        }
         
-        list.innerHTML = html;
-        selectCategory.innerHTML = options;
+        // Pour les filtres de catégories (mobile)
+        if (categoryFilters) {
+            let filterHtml = `
+                <button class="category-filter ${this.currentCategory === 'all' ? 'active' : ''}" 
+                        data-category="all" onclick="app.filterByCategory('all')">
+                    <i class="fas fa-th"></i> Tout
+                </button>
+            `;
+            
+            this.categories.forEach(cat => {
+                const promptCount = counts[cat.id] || 0;
+                filterHtml += `
+                    <button class="category-filter ${this.currentCategory === cat.id ? 'active' : ''}" 
+                            data-category="${cat.id}" onclick="app.filterByCategory('${cat.id}')">
+                        <i class="fas ${cat.icon || 'fa-folder'}"></i> ${cat.name}
+                        ${promptCount > 0 ? `<span class="filter-count">${promptCount}</span>` : ''}
+                    </button>
+                `;
+            });
+            
+            categoryFilters.innerHTML = filterHtml;
+        }
+        
+        // Pour le select dans le formulaire
+        if (selectCategory) {
+            let options = '<option value="">Sélectionner une catégorie</option>';
+            this.categories.forEach(cat => {
+                options += `<option value="${cat.id}">${cat.name}</option>`;
+            });
+            selectCategory.innerHTML = options;
+        }
     }
     
     // Supprimer une catégorie
@@ -330,7 +476,10 @@ class PromptManager {
         // Si on était sur cette catégorie, revenir à "Tous"
         if (this.currentCategory === categoryId) {
             this.currentCategory = 'all';
-            document.getElementById('sectionTitle').textContent = 'Tous les prompts';
+            const sectionTitle = document.getElementById('sectionTitle');
+            if (sectionTitle) {
+                sectionTitle.textContent = 'Tous les prompts';
+            }
         }
         
         // Rafraîchir l'affichage
@@ -343,92 +492,409 @@ class PromptManager {
         }
     }
     
+    // Créer une carte de prompt (version optimisée mobile/desktop)
+    createPromptCard(prompt) {
+        const category = this.categories.find(c => c.id === prompt.category);
+        const tags = prompt.tags ? prompt.tags.split(',').map(t => t.trim()).filter(t => t) : [];
+        const images = prompt.images || [];
+        const firstImage = images.length > 0 ? images[0] : null;
+        
+        // Créer l'élément de carte
+        const card = document.createElement('div');
+        card.className = 'prompt-card';
+        card.dataset.id = prompt.id;
+        
+        if (this.isMobile) {
+            // Version mobile avec image en haut
+            card.innerHTML = `
+                <!-- Image en haut de la carte -->
+                <div class="prompt-card-image">
+                    ${firstImage 
+                        ? `<img src="${firstImage}" alt="${this.escapeHtml(prompt.title)}" loading="lazy" onerror="this.onerror=null; this.parentElement.innerHTML='<div class=\\'no-image\\'><i class=\\'fas fa-image\\'></i></div>'">`
+                        : `<div class="no-image">
+                               <i class="fas fa-image"></i>
+                           </div>`
+                    }
+                    <!-- Badge de catégorie -->
+                    <span class="category-badge">
+                        <i class="fas ${category?.icon || 'fa-folder'}"></i> ${this.escapeHtml(category?.name || 'Sans catégorie')}
+                    </span>
+                </div>
+                
+                <!-- Contenu de la carte -->
+                <div class="prompt-card-content">
+                    <!-- En-tête avec titre et actions -->
+                    <div class="prompt-card-header">
+                        <h3 class="prompt-card-title">${this.escapeHtml(prompt.title)}</h3>
+                        <div class="prompt-card-actions">
+                            <button onclick="event.stopPropagation(); app.copyPrompt('${prompt.id}')" title="Copier">
+                                <i class="fas fa-copy"></i>
+                            </button>
+                            <button onclick="event.stopPropagation(); app.editPrompt('${prompt.id}')" title="Modifier">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button onclick="event.stopPropagation(); app.deletePrompt('${prompt.id}')" title="Supprimer">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- Description -->
+                    ${prompt.description 
+                        ? `<p class="prompt-card-description">${this.escapeHtml(prompt.description)}</p>`
+                        : ''
+                    }
+                    
+                    <!-- Prompt avec fond différent -->
+                    <div class="prompt-card-prompt">
+                        <div class="prompt-card-prompt-text">${this.escapeHtml(prompt.content)}</div>
+                    </div>
+                    
+                    <!-- Tags -->
+                    ${tags.length > 0 ? `
+                        <div class="prompt-card-tags">
+                            ${tags.slice(0, 3).map(tag => `<span class="prompt-card-tag">${this.escapeHtml(tag)}</span>`).join('')}
+                        </div>
+                    ` : ''}
+                    
+                    <!-- Footer avec métadonnées -->
+                    <div class="prompt-card-footer">
+                        <div class="prompt-card-meta">
+                            <span><i class="fas fa-images"></i> ${images.length}</span>
+                            <span><i class="fas fa-comment"></i> ${prompt.comment ? '1' : '0'}</span>
+                            <span><i class="fas fa-code"></i> ${prompt.jsonParams ? 'JSON' : '-'}</span>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            // Ajouter l'événement de clic pour ouvrir les détails
+            card.addEventListener('click', (e) => {
+                if (!e.target.closest('button')) {
+                    this.showPromptDetails(prompt.id);
+                }
+            });
+        } else {
+            // Version desktop (structure existante)
+            card.innerHTML = `
+                <div class="prompt-card-header">
+                    <div>
+                        <h3>${this.escapeHtml(prompt.title)}</h3>
+                        <div class="prompt-card-category">
+                            <i class="fas ${category?.icon || 'fa-folder'}"></i>
+                            ${category?.name || 'Non catégorisé'}
+                        </div>
+                    </div>
+                    <div class="prompt-card-actions">
+                        <button class="btn-card-action" onclick="app.copyPrompt('${prompt.id}')" title="Copier">
+                            <i class="fas fa-copy"></i>
+                        </button>
+                        <button class="btn-card-action" onclick="app.editPrompt('${prompt.id}')" title="Éditer">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                        <button class="btn-card-action delete" onclick="app.deletePrompt('${prompt.id}')" title="Supprimer">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                </div>
+                
+                ${images.length > 0 ? `
+                    <div class="prompt-card-images">
+                        ${images.slice(0, 3).map((img, index) => `
+                            <div class="prompt-card-image" onclick="app.openGallery('${prompt.id}', ${index})">
+                                <img src="${img}" alt="Image ${index + 1}" loading="lazy">
+                                ${index === 2 && images.length > 3 ? `
+                                    <span class="image-count">+${images.length - 3}</span>
+                                ` : ''}
+                            </div>
+                        `).join('')}
+                    </div>
+                ` : ''}
+                
+                ${prompt.replicateLink ? `
+                    <a href="${prompt.replicateLink}" target="_blank" class="replicate-link">
+                        <i class="fas fa-external-link-alt"></i> Voir sur Replicate
+                    </a>
+                ` : ''}
+                
+                ${prompt.description ? `<p class="prompt-card-description">${this.escapeHtml(prompt.description)}</p>` : ''}
+                <div class="prompt-card-content">${this.escapeHtml(prompt.content)}</div>
+                ${prompt.comment ? `
+                    <div class="prompt-card-comment">
+                        <i class="fas fa-comment"></i> 
+                        <span>${this.escapeHtml(prompt.comment)}</span>
+                    </div>
+                ` : ''}
+                ${prompt.jsonParams ? `
+                    <div class="prompt-card-json">
+                        <div class="json-header">
+                            <i class="fas fa-code"></i> Paramètres JSON
+                            <button class="btn-copy-json" onclick="app.copyJson('${prompt.id}')" title="Copier le JSON">
+                                <i class="fas fa-copy"></i>
+                            </button>
+                        </div>
+                        <pre class="json-content">${this.escapeHtml(prompt.jsonParams)}</pre>
+                    </div>
+                ` : ''}
+                ${tags.length > 0 ? `
+                    <div class="prompt-card-tags">
+                        ${tags.map(tag => `<span class="tag">#${this.escapeHtml(tag)}</span>`).join('')}
+                    </div>
+                ` : ''}
+            `;
+            
+            // Sur desktop, double-clic pour éditer
+            card.addEventListener('dblclick', () => {
+                this.editPrompt(prompt.id);
+            });
+        }
+        
+        return card;
+    }
+    
+    // Afficher les détails d'un prompt (mobile)
+    showPromptDetails(promptId) {
+        const prompt = this.prompts.find(p => p.id === promptId);
+        if (!prompt) return;
+        
+        const modal = document.getElementById('promptDetailsModal');
+        const content = document.getElementById('promptDetailsContent');
+        const title = document.getElementById('detailsTitle');
+        
+        if (!modal || !content) {
+            // Créer la modal si elle n'existe pas
+            this.createPromptDetailsModal(prompt);
+            return;
+        }
+        
+        // Mettre à jour le titre
+        if (title) {
+            title.textContent = prompt.title;
+        }
+        
+        const category = this.categories.find(c => c.id === prompt.category);
+        const tags = prompt.tags ? prompt.tags.split(',').map(t => t.trim()).filter(t => t) : [];
+        
+        // Créer le contenu des détails
+        content.innerHTML = `
+            <!-- Galerie d'images -->
+            ${prompt.images && prompt.images.length > 0 
+                ? `<div class="prompt-images-gallery">
+                       ${prompt.images.map((img, index) => 
+                           `<img src="${img}" alt="Image ${index + 1}" onclick="app.openImageFullscreen('${img}')">`
+                       ).join('')}
+                   </div>`
+                : ''
+            }
+            
+            <!-- Informations -->
+            <div class="prompt-details">
+                <div class="detail-group">
+                    <label>Catégorie</label>
+                    <p><i class="fas ${category?.icon || 'fa-folder'}"></i> ${this.escapeHtml(category?.name || 'Sans catégorie')}</p>
+                </div>
+                
+                ${prompt.description 
+                    ? `<div class="detail-group">
+                           <label>Description</label>
+                           <p>${this.escapeHtml(prompt.description)}</p>
+                       </div>`
+                    : ''
+                }
+                
+                <div class="detail-group">
+                    <label>Prompt</label>
+                    <div class="prompt-text-box">
+                        ${this.escapeHtml(prompt.content)}
+                    </div>
+                    <button class="btn btn-sm" onclick="app.copyPrompt('${prompt.id}')">
+                        <i class="fas fa-copy"></i> Copier le prompt
+                    </button>
+                </div>
+                
+                ${prompt.comment 
+                    ? `<div class="detail-group">
+                           <label>Commentaire / Notes</label>
+                           <p>${this.escapeHtml(prompt.comment)}</p>
+                       </div>`
+                    : ''
+                }
+                
+                ${prompt.jsonParams 
+                    ? `<div class="detail-group">
+                           <label>Configuration JSON</label>
+                           <pre class="json-box">${this.escapeHtml(prompt.jsonParams)}</pre>
+                           <button class="btn btn-sm" onclick="app.copyJson('${prompt.id}')">
+                               <i class="fas fa-copy"></i> Copier JSON
+                           </button>
+                       </div>`
+                    : ''
+                }
+                
+                ${prompt.replicateLink 
+                    ? `<div class="detail-group">
+                           <label>Lien Replicate</label>
+                           <a href="${prompt.replicateLink}" target="_blank" class="btn btn-sm">
+                               <i class="fas fa-external-link-alt"></i> Ouvrir sur Replicate
+                           </a>
+                       </div>`
+                    : ''
+                }
+                
+                ${tags.length > 0
+                    ? `<div class="detail-group">
+                           <label>Tags</label>
+                           <div class="prompt-tags">
+                               ${tags.map(tag => 
+                                   `<span class="tag">${this.escapeHtml(tag)}</span>`
+                               ).join('')}
+                           </div>
+                       </div>`
+                    : ''
+                }
+            </div>
+        `;
+        
+        // Configurer les boutons du footer
+        const copyBtn = document.getElementById('copyPromptBtn');
+        const editBtn = document.getElementById('editPromptBtn');
+        
+        if (copyBtn) {
+            copyBtn.onclick = () => {
+                this.copyPrompt(promptId);
+                this.closeModal('promptDetailsModal');
+            };
+        }
+        
+        if (editBtn) {
+            editBtn.onclick = () => {
+                this.closeModal('promptDetailsModal');
+                this.editPrompt(promptId);
+            };
+        }
+        
+        // Afficher la modal
+        modal.style.display = 'flex';
+        modal.classList.add('show');
+    }
+    
+    // Créer la modal de détails si elle n'existe pas
+    createPromptDetailsModal(prompt) {
+        const modal = document.createElement('div');
+        modal.className = 'modal';
+        modal.id = 'promptDetailsModal';
+        modal.innerHTML = `
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2 id="detailsTitle">${this.escapeHtml(prompt.title)}</h2>
+                    <button class="close-btn" onclick="app.closeModal('promptDetailsModal')">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                
+                <div class="modal-body" id="promptDetailsContent">
+                    <!-- Le contenu sera généré -->
+                </div>
+                
+                <div class="modal-footer">
+                    <button class="btn btn-secondary" id="copyPromptBtn">
+                        <i class="fas fa-copy"></i> Copier
+                    </button>
+                    <button class="btn btn-primary" id="editPromptBtn">
+                        <i class="fas fa-edit"></i> Modifier
+                    </button>
+                </div>
+            </div>
+        `;
+        document.body.appendChild(modal);
+        
+        // Appeler à nouveau pour remplir le contenu
+        this.showPromptDetails(prompt.id);
+    }
+    
+    // Fermer une modal par ID
+    closeModal(modalId) {
+        const modal = document.getElementById(modalId);
+        if (modal) {
+            modal.classList.remove('show');
+            setTimeout(() => {
+                modal.style.display = 'none';
+            }, 300);
+        }
+    }
+    
+    // Ouvrir une image en plein écran
+    openImageFullscreen(imageSrc) {
+        const viewer = document.createElement('div');
+        viewer.className = 'image-viewer-fullscreen';
+        viewer.innerHTML = `
+            <button class="close-viewer" onclick="this.parentElement.remove()">
+                <i class="fas fa-times"></i>
+            </button>
+            <img src="${imageSrc}" alt="Image" loading="lazy">
+        `;
+        
+        // Fermer en cliquant sur le fond
+        viewer.addEventListener('click', (e) => {
+            if (e.target === viewer) {
+                viewer.remove();
+            }
+        });
+        
+        document.body.appendChild(viewer);
+    }
+    
     // Rendu des prompts
     renderPrompts(filteredPrompts = null) {
         const grid = document.getElementById('promptsGrid');
         const emptyState = document.getElementById('emptyState');
         const prompts = filteredPrompts || this.getFilteredPrompts();
         
+        if (!grid) return;
+        
         if (prompts.length === 0) {
             grid.innerHTML = '';
-            emptyState.classList.add('show');
+            grid.style.display = 'none';
+            if (emptyState) {
+                emptyState.style.display = 'block';
+                emptyState.classList.add('show');
+            }
             return;
         }
         
-        emptyState.classList.remove('show');
+        if (emptyState) {
+            emptyState.style.display = 'none';
+            emptyState.classList.remove('show');
+        }
+        grid.style.display = '';
         
-        grid.innerHTML = prompts.map(prompt => {
-            const category = this.categories.find(c => c.id === prompt.category);
-            const tags = prompt.tags ? prompt.tags.split(',').map(t => t.trim()).filter(t => t) : [];
-            const images = prompt.images || [];
-            
-            return `
-                <div class="prompt-card" data-id="${prompt.id}">
-                    <div class="prompt-card-header">
-                        <div>
-                            <h3>${this.escapeHtml(prompt.title)}</h3>
-                            <div class="prompt-card-category">
-                                <i class="fas ${category?.icon || 'fa-folder'}"></i>
-                                ${category?.name || 'Non catégorisé'}
-                            </div>
-                        </div>                        <div class="prompt-card-actions">
-                            <button class="btn-card-action" onclick="app.copyPrompt('${prompt.id}')" title="Copier">
-                                <i class="fas fa-copy"></i>
-                            </button>
-                            <button class="btn-card-action" onclick="app.editPrompt('${prompt.id}')" title="Éditer">
-                                <i class="fas fa-edit"></i>
-                            </button>
-                            <button class="btn-card-action delete" onclick="app.deletePrompt('${prompt.id}')" title="Supprimer">
-                                <i class="fas fa-trash"></i>
-                            </button>
-                        </div>
-                    </div>
-                    
-                    ${images.length > 0 ? `
-                        <div class="prompt-card-images">
-                            ${images.slice(0, 3).map((img, index) => `
-                                <div class="prompt-card-image" onclick="app.openGallery('${prompt.id}', ${index})">
-                                    <img src="${img}" alt="Image ${index + 1}">
-                                    ${index === 2 && images.length > 3 ? `
-                                        <span class="image-count">+${images.length - 3}</span>
-                                    ` : ''}
-                                </div>
-                            `).join('')}
-                        </div>
-                    ` : ''}
-                    
-                    ${prompt.replicateLink ? `
-                        <a href="${prompt.replicateLink}" target="_blank" class="replicate-link">
-                            <i class="fas fa-external-link-alt"></i> Voir sur Replicate
-                        </a>                    ` : ''}
-                    
-                    ${prompt.description ? `<p class="prompt-card-description">${this.escapeHtml(prompt.description)}</p>` : ''}
-                    <div class="prompt-card-content">${this.escapeHtml(prompt.content)}</div>
-                    ${prompt.comment ? `
-                        <div class="prompt-card-comment">
-                            <i class="fas fa-comment"></i> 
-                            <span>${this.escapeHtml(prompt.comment)}</span>
-                        </div>
-                    ` : ''}
-                    ${prompt.jsonParams ? `
-                        <div class="prompt-card-json">
-                            <div class="json-header">
-                                <i class="fas fa-code"></i> Paramètres JSON
-                                <button class="btn-copy-json" onclick="app.copyJson('${prompt.id}')" title="Copier le JSON">
-                                    <i class="fas fa-copy"></i>
-                                </button>
-                            </div>
-                            <pre class="json-content">${this.escapeHtml(prompt.jsonParams)}</pre>
-                        </div>
-                    ` : ''}
-                    ${tags.length > 0 ? `
-                        <div class="prompt-card-tags">
-                            ${tags.map(tag => `<span class="tag">#${this.escapeHtml(tag)}</span>`).join('')}
-                        </div>
-                    ` : ''}
-                </div>
-            `;
-        }).join('');
+        // Vider la grille
+        grid.innerHTML = '';
+        
+        // Créer les cartes avec la fonction optimisée
+        prompts.forEach(prompt => {
+            const card = this.createPromptCard(prompt);
+            grid.appendChild(card);
+        });
+        
+        // Animation d'apparition sur mobile
+        if (this.isMobile) {
+            this.animateCards();
+        }
+    }
+    
+    // Animer l'apparition des cartes
+    animateCards() {
+        const cards = document.querySelectorAll('.prompt-card');
+        cards.forEach((card, index) => {
+            card.style.opacity = '0';
+            card.style.transform = 'translateY(20px)';
+            setTimeout(() => {
+                card.style.transition = 'opacity 0.3s ease, transform 0.3s ease';
+                card.style.opacity = '1';
+                card.style.transform = 'translateY(0)';
+            }, index * 50);
+        });
     }
     
     // Filtrage et recherche
@@ -446,10 +912,19 @@ class PromptManager {
         document.querySelectorAll('.category-item').forEach(item => {
             item.classList.toggle('active', item.dataset.category === categoryId);
         });
-                // Mettre à jour le titre
+        
+        // Mettre à jour les filtres mobiles
+        document.querySelectorAll('.category-filter').forEach(filter => {
+            filter.classList.toggle('active', filter.dataset.category === categoryId);
+        });
+        
+        // Mettre à jour le titre
         const category = this.categories.find(c => c.id === categoryId);
-        document.getElementById('sectionTitle').textContent = 
-            categoryId === 'all' ? 'Tous les prompts' : category?.name || 'Prompts';
+        const sectionTitle = document.getElementById('sectionTitle');
+        if (sectionTitle) {
+            sectionTitle.textContent = 
+                categoryId === 'all' ? 'Tous les prompts' : category?.name || 'Prompts';
+        }
         
         this.renderPrompts();
     }
@@ -477,23 +952,45 @@ class PromptManager {
     openPromptModal(promptId = null) {
         const modal = document.getElementById('promptModal');
         const form = document.getElementById('promptForm');
-        const title = document.getElementById('modalTitle');        
+        const title = document.getElementById('modalTitle');
+        
         // Réinitialiser les images temporaires
         this.tempImages = [];
-        document.getElementById('imagePreviewGrid').innerHTML = '';
+        const imagePreviewGrid = document.getElementById('imagePreviewGrid') || document.getElementById('imagesPreview');
+        if (imagePreviewGrid) {
+            imagePreviewGrid.innerHTML = '';
+        }
         
         if (promptId) {
             const prompt = this.prompts.find(p => p.id === promptId);
             if (prompt) {
-                title.textContent = 'Éditer le prompt';
-                document.getElementById('promptTitle').value = prompt.title;
-                document.getElementById('promptCategory').value = prompt.category;
-                document.getElementById('promptReplicateLink').value = prompt.replicateLink || '';
-                document.getElementById('promptDescription').value = prompt.description || '';
-                document.getElementById('promptContent').value = prompt.content;
-                document.getElementById('promptComment').value = prompt.comment || '';
-                document.getElementById('promptJson').value = prompt.jsonParams || '';
-                document.getElementById('promptTags').value = prompt.tags || '';
+                if (title) title.textContent = 'Éditer le prompt';
+                
+                // Remplir les champs
+                const fields = {
+                    'promptTitle': prompt.title,
+                    'title': prompt.title,
+                    'promptCategory': prompt.category,
+                    'category': prompt.category,
+                    'promptReplicateLink': prompt.replicateLink || '',
+                    'replicateLink': prompt.replicateLink || '',
+                    'promptDescription': prompt.description || '',
+                    'description': prompt.description || '',
+                    'promptContent': prompt.content,
+                    'prompt': prompt.content,
+                    'promptComment': prompt.comment || '',
+                    'comment': prompt.comment || '',
+                    'promptJson': prompt.jsonParams || '',
+                    'json': prompt.jsonParams || '',
+                    'promptTags': prompt.tags || '',
+                    'tags': prompt.tags || ''
+                };
+                
+                for (const [id, value] of Object.entries(fields)) {
+                    const element = document.getElementById(id);
+                    if (element) element.value = value;
+                }
+                
                 this.currentEditId = promptId;
                 
                 // Charger les images existantes
@@ -503,12 +1000,15 @@ class PromptManager {
                 }
             }
         } else {
-            title.textContent = 'Nouveau Prompt';
-            form.reset();
+            if (title) title.textContent = 'Nouveau Prompt';
+            if (form) form.reset();
             this.currentEditId = null;
         }
         
-        modal.classList.add('show');
+        if (modal) {
+            modal.classList.add('show');
+            modal.style.display = 'flex';
+        }
         
         // Réactiver la détection de doublons
         if (window.duplicateDetector) {
@@ -520,11 +1020,23 @@ class PromptManager {
                 }, 100);
             }
         }
-    }    
+    }
+    
     closePromptModal() {
-        document.getElementById('promptModal').classList.remove('show');
-        document.getElementById('promptForm').reset();
-        document.getElementById('imagePreviewGrid').innerHTML = '';
+        const modal = document.getElementById('promptModal');
+        const form = document.getElementById('promptForm');
+        const imagePreviewGrid = document.getElementById('imagePreviewGrid') || document.getElementById('imagesPreview');
+        
+        if (modal) {
+            modal.classList.remove('show');
+            setTimeout(() => {
+                modal.style.display = 'none';
+            }, 300);
+        }
+        
+        if (form) form.reset();
+        if (imagePreviewGrid) imagePreviewGrid.innerHTML = '';
+        
         this.tempImages = [];
         this.currentEditId = null;
         
@@ -537,16 +1049,25 @@ class PromptManager {
     savePrompt(e) {
         e.preventDefault();
         
+        // Récupérer les valeurs des champs (compatible avec les deux structures HTML)
+        const getFieldValue = (ids) => {
+            for (const id of ids) {
+                const element = document.getElementById(id);
+                if (element) return element.value;
+            }
+            return '';
+        };
+        
         const promptData = {
             id: this.currentEditId || this.generateId(),
-            title: document.getElementById('promptTitle').value,
-            category: document.getElementById('promptCategory').value,
-            replicateLink: document.getElementById('promptReplicateLink').value,
-            description: document.getElementById('promptDescription').value,
-            content: document.getElementById('promptContent').value,
-            comment: document.getElementById('promptComment').value,
-            jsonParams: document.getElementById('promptJson').value,
-            tags: document.getElementById('promptTags').value,
+            title: getFieldValue(['promptTitle', 'title']),
+            category: getFieldValue(['promptCategory', 'category']),
+            replicateLink: getFieldValue(['promptReplicateLink', 'replicateLink']),
+            description: getFieldValue(['promptDescription', 'description']),
+            content: getFieldValue(['promptContent', 'prompt']),
+            comment: getFieldValue(['promptComment', 'comment']),
+            jsonParams: getFieldValue(['promptJson', 'json']),
+            tags: getFieldValue(['promptTags', 'tags']),
             images: this.tempImages,
             createdAt: this.currentEditId ? 
                 this.prompts.find(p => p.id === this.currentEditId).createdAt : 
@@ -556,7 +1077,8 @@ class PromptManager {
         
         if (this.currentEditId) {
             const index = this.prompts.findIndex(p => p.id === this.currentEditId);
-            this.prompts[index] = promptData;            this.showToast('Prompt modifié avec succès', 'success');
+            this.prompts[index] = promptData;
+            this.showToast('Prompt modifié avec succès', 'success');
         } else {
             this.prompts.push(promptData);
             this.showToast('Prompt créé avec succès', 'success');
@@ -605,9 +1127,17 @@ class PromptManager {
     copyPrompt(promptId) {
         const prompt = this.prompts.find(p => p.id === promptId);
         if (prompt) {
-            navigator.clipboard.writeText(prompt.content).then(() => {                this.showToast('Prompt copié dans le presse-papier !', 'success');
+            navigator.clipboard.writeText(prompt.content).then(() => {
+                this.showToast('Prompt copié dans le presse-papier !', 'success');
             }).catch(() => {
-                this.showToast('Erreur lors de la copie', 'error');
+                // Fallback pour les anciens navigateurs
+                const textArea = document.createElement('textarea');
+                textArea.value = prompt.content;
+                document.body.appendChild(textArea);
+                textArea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textArea);
+                this.showToast('Prompt copié !', 'success');
             });
         }
     }
@@ -618,72 +1148,91 @@ class PromptManager {
             navigator.clipboard.writeText(prompt.jsonParams).then(() => {
                 this.showToast('Paramètres JSON copiés !', 'success');
             }).catch(() => {
-                this.showToast('Erreur lors de la copie', 'error');
+                // Fallback
+                const textArea = document.createElement('textarea');
+                textArea.value = prompt.jsonParams;
+                document.body.appendChild(textArea);
+                textArea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textArea);
+                this.showToast('JSON copié !', 'success');
             });
         }
     }
     
     formatJson() {
-        const jsonTextarea = document.getElementById('promptJson');
-        const statusElement = document.getElementById('jsonStatus');
+        const jsonTextarea = document.getElementById('promptJson') || document.getElementById('json');
+        const statusElement = document.getElementById('jsonStatus') || document.getElementById('jsonValidation');
         
-        if (!jsonTextarea.value.trim()) {
-            statusElement.textContent = '';
+        if (!jsonTextarea || !jsonTextarea.value.trim()) {
+            if (statusElement) statusElement.textContent = '';
             return;
         }
         
         try {
             const parsed = JSON.parse(jsonTextarea.value);
             jsonTextarea.value = JSON.stringify(parsed, null, 2);
-            statusElement.textContent = '✅ JSON formaté avec succès';
-            statusElement.className = 'json-status success';
-            setTimeout(() => {
-                statusElement.textContent = '';
-            }, 3000);
+            if (statusElement) {
+                statusElement.textContent = '✅ JSON formaté avec succès';
+                statusElement.className = 'json-status success';
+                setTimeout(() => {
+                    statusElement.textContent = '';
+                }, 3000);
+            }
         } catch (e) {
-            statusElement.textContent = '❌ JSON invalide: ' + e.message;
-            statusElement.className = 'json-status error';
+            if (statusElement) {
+                statusElement.textContent = '❌ JSON invalide: ' + e.message;
+                statusElement.className = 'json-status error';
+            }
         }
     }
     
     validateJson() {
-        const jsonTextarea = document.getElementById('promptJson');
-        const statusElement = document.getElementById('jsonStatus');
+        const jsonTextarea = document.getElementById('promptJson') || document.getElementById('json');
+        const statusElement = document.getElementById('jsonStatus') || document.getElementById('jsonValidation');
         
-        if (!jsonTextarea.value.trim()) {
-            statusElement.textContent = 'ℹ️ Aucun JSON à valider';
-            statusElement.className = 'json-status info';
-            setTimeout(() => {
-                statusElement.textContent = '';
-            }, 3000);
+        if (!jsonTextarea || !jsonTextarea.value.trim()) {
+            if (statusElement) {
+                statusElement.textContent = 'ℹ️ Aucun JSON à valider';
+                statusElement.className = 'json-status info';
+                setTimeout(() => {
+                    statusElement.textContent = '';
+                }, 3000);
+            }
             return;
         }
         
         try {
             JSON.parse(jsonTextarea.value);
-            statusElement.textContent = '✅ JSON valide !';
-            statusElement.className = 'json-status success';
-            setTimeout(() => {
-                statusElement.textContent = '';
-            }, 3000);
+            if (statusElement) {
+                statusElement.textContent = '✅ JSON valide !';
+                statusElement.className = 'json-status success';
+                setTimeout(() => {
+                    statusElement.textContent = '';
+                }, 3000);
+            }
         } catch (e) {
-            statusElement.textContent = '❌ JSON invalide: ' + e.message;
-            statusElement.className = 'json-status error';
+            if (statusElement) {
+                statusElement.textContent = '❌ JSON invalide: ' + e.message;
+                statusElement.className = 'json-status error';
+            }
         }
     }
     
     showJsonTemplates() {
         const templatesDiv = document.getElementById('jsonTemplates');
-        if (templatesDiv.style.display === 'none') {
-            templatesDiv.style.display = 'block';
-        } else {
-            templatesDiv.style.display = 'none';
+        if (templatesDiv) {
+            if (templatesDiv.style.display === 'none') {
+                templatesDiv.style.display = 'block';
+            } else {
+                templatesDiv.style.display = 'none';
+            }
         }
     }
     
     insertTemplate(templateName) {
         const templates = {
-            'flux': {
+            'flux-dev': {
                 "model": "flux-1.1-pro",
                 "guidance_scale": 3.5,
                 "num_inference_steps": 25,
@@ -692,7 +1241,15 @@ class PromptManager {
                 "prompt_strength": 0.8,
                 "seed": -1
             },
-            'sdxl': {
+            'flux-schnell': {
+                "model": "flux-schnell",
+                "guidance_scale": 0,
+                "num_inference_steps": 4,
+                "width": 1024,
+                "height": 1024,
+                "seed": -1
+            },
+            'stable-diffusion': {
                 "model": "stable-diffusion-xl",
                 "cfg_scale": 7,
                 "steps": 30,
@@ -702,14 +1259,12 @@ class PromptManager {
                 "negative_prompt": "",
                 "seed": -1
             },
-            'sdxl_turbo': {
-                "model": "sdxl-turbo",
-                "cfg_scale": 1,
-                "steps": 1,
-                "sampler": "Euler a",
-                "width": 512,
-                "height": 512,
-                "seed": -1
+            'dalle': {
+                "model": "dall-e-3",
+                "quality": "hd",
+                "size": "1024x1024",
+                "style": "vivid",
+                "n": 1
             },
             'midjourney': {
                 "model": "midjourney-v6",
@@ -720,12 +1275,13 @@ class PromptManager {
                 "weird": 0,
                 "version": 6
             },
-            'dalle3': {
-                "model": "dall-e-3",
-                "quality": "hd",
-                "size": "1024x1024",
-                "style": "vivid",
-                "n": 1
+            'krea': {
+                "model": "krea-ai",
+                "guidance_scale": 7.5,
+                "steps": 50,
+                "width": 1024,
+                "height": 1024,
+                "seed": -1
             },
             'leonardo': {
                 "model": "leonardo-diffusion",
@@ -745,58 +1301,67 @@ class PromptManager {
                 "sampler": "K_EULER_ANCESTRAL",
                 "seed": -1
             },
-            'comfyui': {
-                "checkpoint": "model.safetensors",
-                "seed": -1,
-                "steps": 20,
-                "cfg": 8,
-                "sampler_name": "euler",
-                "scheduler": "normal",
-                "width": 1024,
-                "height": 1024
-            },
-            'automatic1111': {
-                "steps": 20,
-                "sampler_name": "Euler a",
-                "cfg_scale": 7,
-                "seed": -1,
-                "width": 512,
-                "height": 512,
-                "batch_size": 1
-            }
+            'custom': {}
         };
         
         const template = templates[templateName];
         if (template) {
-            document.getElementById('promptJson').value = JSON.stringify(template, null, 2);
-            document.getElementById('jsonTemplates').style.display = 'none';
+            const jsonTextarea = document.getElementById('promptJson') || document.getElementById('json');
+            if (jsonTextarea) {
+                jsonTextarea.value = JSON.stringify(template, null, 2);
+            }
+            
+            const templatesDiv = document.getElementById('jsonTemplates');
+            if (templatesDiv) {
+                templatesDiv.style.display = 'none';
+            }
+            
             this.showToast(`Template ${templateName.toUpperCase()} inséré !`, 'success');
         }
     }
     
     // Gestion des catégories
     openCategoryModal() {
-        document.getElementById('categoryModal').classList.add('show');
+        const modal = document.getElementById('categoryModal');
+        if (modal) {
+            modal.classList.add('show');
+            modal.style.display = 'flex';
+        }
     }
     
     closeCategoryModal() {
-        document.getElementById('categoryModal').classList.remove('show');
-        document.getElementById('categoryForm').reset();
+        const modal = document.getElementById('categoryModal');
+        const form = document.getElementById('categoryForm');
+        
+        if (modal) {
+            modal.classList.remove('show');
+            setTimeout(() => {
+                modal.style.display = 'none';
+            }, 300);
+        }
+        
+        if (form) form.reset();
     }
     
     saveCategory(e) {
         e.preventDefault();
         
+        const nameField = document.getElementById('categoryName') || document.getElementById('newCategoryName');
+        const iconField = document.getElementById('categoryIcon') || document.getElementById('newCategoryIcon');
+        
+        if (!nameField) return;
+        
         const categoryData = {
             id: this.generateId(),
-            name: document.getElementById('categoryName').value,
-            icon: document.getElementById('categoryIcon').value || 'fa-folder'
+            name: nameField.value,
+            icon: iconField?.value || 'fa-folder'
         };
         
         // Vérifier si le nom existe déjà
         if (this.categories.some(c => c.name.toLowerCase() === categoryData.name.toLowerCase())) {
             this.showToast('Une catégorie avec ce nom existe déjà', 'error');
-            return;        }
+            return;
+        }
         
         this.categories.push(categoryData);
         this.saveCategories();
@@ -831,7 +1396,8 @@ class PromptManager {
     
     importData(e) {
         const file = e.target.files[0];
-        if (!file) return;        
+        if (!file) return;
+        
         const reader = new FileReader();
         reader.onload = (event) => {
             try {
@@ -850,6 +1416,11 @@ class PromptManager {
                 this.renderCategories();
                 this.renderPrompts();
                 this.showToast('Données importées avec succès', 'success');
+                
+                // Mettre à jour l'indicateur de doublons
+                if (window.duplicateDetector) {
+                    window.duplicateDetector.updateDuplicateIndicator();
+                }
             } catch (error) {
                 this.showToast('Erreur lors de l\'import du fichier', 'error');
             }
@@ -909,18 +1480,25 @@ class PromptManager {
         this.renderPrompts();
         
         // Cacher le bouton après le chargement
-        document.getElementById('loadExamplesBtn').style.display = 'none';
+        const loadExamplesBtn = document.getElementById('loadExamplesBtn');
+        if (loadExamplesBtn) {
+            loadExamplesBtn.style.display = 'none';
+        }
+        
         this.showToast('Exemples de prompts chargés avec succès !', 'success');
     }
     
     // Thème
     toggleTheme() {
         const currentTheme = document.body.getAttribute('data-theme');
-        const newTheme = currentTheme === 'dark' ? 'light' : 'dark';        document.body.setAttribute('data-theme', newTheme);
+        const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+        document.body.setAttribute('data-theme', newTheme);
         localStorage.setItem('theme', newTheme);
         
         const icon = document.querySelector('#themeToggle i');
-        icon.className = newTheme === 'dark' ? 'fas fa-sun' : 'fas fa-moon';
+        if (icon) {
+            icon.className = newTheme === 'dark' ? 'fas fa-sun' : 'fas fa-moon';
+        }
     }
     
     updateTheme() {
@@ -928,7 +1506,9 @@ class PromptManager {
         document.body.setAttribute('data-theme', savedTheme);
         
         const icon = document.querySelector('#themeToggle i');
-        icon.className = savedTheme === 'dark' ? 'fas fa-sun' : 'fas fa-moon';
+        if (icon) {
+            icon.className = savedTheme === 'dark' ? 'fas fa-sun' : 'fas fa-moon';
+        }
     }
     
     // Gestion des images
@@ -945,7 +1525,8 @@ class PromptManager {
     processImageFiles(files) {
         if (files.length === 0) return;
         
-        files.forEach(file => {            const reader = new FileReader();
+        files.forEach(file => {
+            const reader = new FileReader();
             reader.onload = (event) => {
                 this.tempImages.push(event.target.result);
                 this.renderImagePreviews();
@@ -955,11 +1536,13 @@ class PromptManager {
     }
     
     renderImagePreviews() {
-        const grid = document.getElementById('imagePreviewGrid');
+        const grid = document.getElementById('imagePreviewGrid') || document.getElementById('imagesPreview');
+        if (!grid) return;
+        
         grid.innerHTML = this.tempImages.map((img, index) => `
             <div class="image-preview-item">
                 <img src="${img}" alt="Image ${index + 1}" onclick="app.previewImage('${img}')">
-                <button class="btn-remove-image" onclick="app.removeImage(${index})">
+                <button class="btn-remove-image remove-image" onclick="app.removeImage(${index})">
                     <i class="fas fa-times"></i>
                 </button>
             </div>
@@ -972,9 +1555,14 @@ class PromptManager {
     }
     
     previewImage(imageSrc) {
-        window.open(imageSrc, '_blank');
+        if (this.isMobile) {
+            this.openImageFullscreen(imageSrc);
+        } else {
+            window.open(imageSrc, '_blank');
+        }
     }
-        // Galerie d'images
+    
+    // Galerie d'images
     openGallery(promptId, startIndex = 0) {
         const prompt = this.prompts.find(p => p.id === promptId);
         if (!prompt || !prompt.images || prompt.images.length === 0) return;
@@ -983,11 +1571,21 @@ class PromptManager {
         this.currentGalleryIndex = startIndex;
         this.updateGalleryImage();
         
-        document.getElementById('imageGalleryModal').classList.add('show');
+        const modal = document.getElementById('imageGalleryModal');
+        if (modal) {
+            modal.classList.add('show');
+            modal.style.display = 'flex';
+        }
     }
     
     closeGallery() {
-        document.getElementById('imageGalleryModal').classList.remove('show');
+        const modal = document.getElementById('imageGalleryModal');
+        if (modal) {
+            modal.classList.remove('show');
+            setTimeout(() => {
+                modal.style.display = 'none';
+            }, 300);
+        }
         this.galleryImages = [];
         this.currentGalleryIndex = 0;
     }
@@ -998,13 +1596,25 @@ class PromptManager {
         const image = document.getElementById('galleryImage');
         const info = document.getElementById('galleryInfo');
         
-        image.src = this.galleryImages[this.currentGalleryIndex];
-        info.textContent = `${this.currentGalleryIndex + 1} / ${this.galleryImages.length}`;
+        if (image) {
+            image.src = this.galleryImages[this.currentGalleryIndex];
+        }
+        
+        if (info) {
+            info.textContent = `${this.currentGalleryIndex + 1} / ${this.galleryImages.length}`;
+        }
         
         // Gérer l'affichage des boutons précédent/suivant
-        document.getElementById('galleryPrev').style.display = 
-            this.galleryImages.length > 1 ? 'block' : 'none';        document.getElementById('galleryNext').style.display = 
-            this.galleryImages.length > 1 ? 'block' : 'none';
+        const prevBtn = document.getElementById('galleryPrev');
+        const nextBtn = document.getElementById('galleryNext');
+        
+        if (prevBtn) {
+            prevBtn.style.display = this.galleryImages.length > 1 ? 'block' : 'none';
+        }
+        
+        if (nextBtn) {
+            nextBtn.style.display = this.galleryImages.length > 1 ? 'block' : 'none';
+        }
     }
     
     galleryPrevious() {
@@ -1025,14 +1635,57 @@ class PromptManager {
     }
     
     escapeHtml(text) {
+        if (!text) return '';
         const div = document.createElement('div');
         div.textContent = text;
         return div.innerHTML;
     }
     
     showToast(message, type = 'info') {
-        const container = document.getElementById('toastContainer');
-        const toast = document.createElement('div');        toast.className = `toast ${type}`;
+        // Supprimer les toasts existants sur mobile
+        if (this.isMobile) {
+            const existingToasts = document.querySelectorAll('.toast');
+            existingToasts.forEach(toast => toast.remove());
+        }
+        
+        let container = document.getElementById('toastContainer');
+        if (!container) {
+            container = document.createElement('div');
+            container.id = 'toastContainer';
+            container.style.cssText = `
+                position: fixed;
+                bottom: ${this.isMobile ? '80px' : '20px'};
+                left: ${this.isMobile ? '50%' : 'auto'};
+                right: ${this.isMobile ? 'auto' : '20px'};
+                transform: ${this.isMobile ? 'translateX(-50%)' : 'none'};
+                z-index: 10000;
+                display: flex;
+                flex-direction: column;
+                gap: 10px;
+                pointer-events: none;
+            `;
+            document.body.appendChild(container);
+        }
+        
+        const toast = document.createElement('div');
+        toast.className = `toast ${type}`;
+        toast.style.cssText = `
+            background: ${type === 'success' ? '#10b981' : 
+                         type === 'error' ? '#ef4444' : 
+                         type === 'warning' ? '#f59e0b' : 
+                         '#3b82f6'};
+            color: white;
+            padding: 12px 24px;
+            border-radius: ${this.isMobile ? '50px' : '8px'};
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            animation: ${this.isMobile ? 'slideInUp' : 'slideInRight'} 0.3s ease;
+            pointer-events: auto;
+            ${this.isMobile ? 'white-space: nowrap;' : ''}
+        `;
+        
         toast.innerHTML = `
             <i class="fas ${type === 'success' ? 'fa-check-circle' : 
                            type === 'error' ? 'fa-times-circle' : 
@@ -1044,13 +1697,252 @@ class PromptManager {
         container.appendChild(toast);
         
         setTimeout(() => {
-            toast.style.animation = 'fadeOut 0.3s ease';
+            toast.style.animation = this.isMobile ? 'slideOutDown 0.3s ease' : 'fadeOut 0.3s ease';
             setTimeout(() => toast.remove(), 300);
         }, 3000);
     }
+    
+    // Ajouter une catégorie (pour le bouton + dans le modal)
+    addCategory() {
+        const nameField = document.getElementById('newCategoryName');
+        const iconField = document.getElementById('newCategoryIcon');
+        
+        if (!nameField || !nameField.value.trim()) {
+            this.showToast('Veuillez entrer un nom de catégorie', 'warning');
+            return;
+        }
+        
+        const categoryData = {
+            id: this.generateId(),
+            name: nameField.value.trim(),
+            icon: iconField?.value || 'fa-folder'
+        };
+        
+        // Vérifier si le nom existe déjà
+        if (this.categories.some(c => c.name.toLowerCase() === categoryData.name.toLowerCase())) {
+            this.showToast('Une catégorie avec ce nom existe déjà', 'error');
+            return;
+        }
+        
+        this.categories.push(categoryData);
+        this.saveCategories();
+        this.renderCategories();
+        
+        // Rafraîchir la liste dans le modal de gestion des catégories
+        this.refreshCategoriesList();
+        
+        // Réinitialiser les champs
+        nameField.value = '';
+        if (iconField) iconField.value = 'fa-folder';
+        
+        this.showToast('Catégorie ajoutée avec succès', 'success');
+    }
+    
+    // Rafraîchir la liste des catégories dans le modal
+    refreshCategoriesList() {
+        const list = document.getElementById('categoriesList');
+        if (!list) return;
+        
+        list.innerHTML = this.categories.map(cat => {
+            const promptCount = this.prompts.filter(p => p.category === cat.id).length;
+            return `
+                <div class="category-list-item">
+                    <div class="category-info">
+                        <i class="fas ${cat.icon}"></i>
+                        <span>${cat.name}</span>
+                        <span class="category-count">${promptCount} prompts</span>
+                    </div>
+                    <button class="btn btn-sm btn-danger" onclick="app.deleteCategory('${cat.id}')">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </div>
+            `;
+        }).join('');
+    }
+    
+    // Afficher le modal de gestion des catégories
+    showCategoryModal() {
+        const modal = document.getElementById('categoryModal');
+        if (modal) {
+            this.refreshCategoriesList();
+            modal.classList.add('show');
+            modal.style.display = 'flex';
+        }
+    }
+    
+    // Fonctions pour mobile (scroll, recherche)
+    scrollToTop() {
+        window.scrollTo({
+            top: 0,
+            behavior: 'smooth'
+        });
+    }
+    
+    toggleSearch() {
+        const searchBar = document.getElementById('searchBar') || document.getElementById('searchInput');
+        if (searchBar) {
+            searchBar.focus();
+            searchBar.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+    }
+    
+    // Fonctions pour les templates JSON
+    applyJsonTemplate() {
+        const templateSelect = document.getElementById('jsonTemplate');
+        if (templateSelect && templateSelect.value) {
+            this.insertTemplate(templateSelect.value);
+        }
+    }
+    
+    // Fonction pour importer des prompts
+    importPrompts() {
+        const importInput = document.getElementById('importInput') || document.getElementById('importFile');
+        if (importInput) {
+            importInput.click();
+        }
+    }
+    
+    // Fonction pour exporter des prompts
+    exportPrompts() {
+        this.exportData();
+    }
+    
+    // Fonction pour vérifier les doublons
+    checkDuplicates() {
+        if (window.duplicateDetector) {
+            window.duplicateDetector.showDuplicatesModal();
+        } else {
+            this.showToast('Détecteur de doublons non disponible', 'warning');
+        }
+    }
+    
+    // Fonction pour copier du texte dans le presse-papier
+    copyToClipboard(text) {
+        navigator.clipboard.writeText(text).then(() => {
+            this.showToast('Copié dans le presse-papier!', 'success');
+        }).catch(err => {
+            console.error('Erreur lors de la copie:', err);
+            // Fallback pour les anciens navigateurs
+            const textArea = document.createElement('textarea');
+            textArea.value = text;
+            document.body.appendChild(textArea);
+            textArea.select();
+            document.execCommand('copy');
+            document.body.removeChild(textArea);
+            this.showToast('Copié!', 'success');
+        });
+    }
+    
+    // Fonction pour afficher le modal principal
+    showPromptModal() {
+        this.openPromptModal();
+    }
+    
+    // Fonction pour fermer un modal par ID
+    closeModalById(modalId) {
+        this.closeModal(modalId);
+    }
 }
+
+// Fonctions globales pour compatibilité avec onclick dans HTML
+window.app = null;
+
+// Fonctions utilitaires globales
+window.scrollToTop = function() {
+    if (window.app) window.app.scrollToTop();
+};
+
+window.toggleSearch = function() {
+    if (window.app) window.app.toggleSearch();
+};
+
+window.showPromptModal = function() {
+    if (window.app) window.app.showPromptModal();
+};
+
+window.copyToClipboard = function(text) {
+    if (window.app) window.app.copyToClipboard(text);
+};
+
+window.loadExamples = function() {
+    if (window.app) window.app.loadExamples();
+};
+
+window.importPrompts = function() {
+    if (window.app) window.app.importPrompts();
+};
+
+window.exportPrompts = function() {
+    if (window.app) window.app.exportPrompts();
+};
+
+window.checkDuplicates = function() {
+    if (window.app) window.app.checkDuplicates();
+};
+
+window.applyJsonTemplate = function() {
+    if (window.app) window.app.applyJsonTemplate();
+};
+
+window.showCategoryModal = function() {
+    if (window.app) window.app.showCategoryModal();
+};
+
+window.addCategory = function() {
+    if (window.app) window.app.addCategory();
+};
 
 // Initialiser l'application au chargement de la page
 document.addEventListener('DOMContentLoaded', () => {
     window.app = new PromptManager();
+    
+    // Ajouter les styles d'animation si ils n'existent pas
+    if (!document.getElementById('mobileAnimations')) {
+        const style = document.createElement('style');
+        style.id = 'mobileAnimations';
+        style.textContent = `
+            @keyframes slideInUp {
+                from {
+                    transform: translateY(100%) translateX(-50%);
+                    opacity: 0;
+                }
+                to {
+                    transform: translateY(0) translateX(-50%);
+                    opacity: 1;
+                }
+            }
+            
+            @keyframes slideOutDown {
+                from {
+                    transform: translateY(0) translateX(-50%);
+                    opacity: 1;
+                }
+                to {
+                    transform: translateY(100%) translateX(-50%);
+                    opacity: 0;
+                }
+            }
+            
+            @keyframes slideInRight {
+                from {
+                    transform: translateX(100%);
+                    opacity: 0;
+                }
+                to {
+                    transform: translateX(0);
+                    opacity: 1;
+                }
+            }
+            
+            @keyframes fadeOut {
+                from {
+                    opacity: 1;
+                }
+                to {
+                    opacity: 0;
+                }
+            }
+        `;
+        document.head.appendChild(style);
+    }
 });
